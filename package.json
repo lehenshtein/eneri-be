@@ -1,7 +1,7 @@
 {
-  "name": "memologist-be",
+  "name": "eneri-be",
   "version": "1.0.0",
-  "description": "test backend for memologist app",
+  "description": "backend for eneri app",
   "main": "src/server.ts",
   "engines": {
     "node": "16.15.1",
