@@ -41,15 +41,11 @@ function StartServer () {
   router.use((req, res, next) => {
     let allowedOrigins = ['http://localhost:4200', 'http://localhost:8080'];
     if (config.env === 'prod') {
-      allowedOrigins = [];
+      allowedOrigins = ['https://eneri-ebb46.web.app'];
     }
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin!)) {
       res.setHeader('Access-Control-Allow-Origin', origin!);
-    } else {
-      config.env === 'prod'
-        ? res.header('Access-Control-Allow-Origin', 'https://memologist-prod.herokuapp.com')
-        : res.header('Access-Control-Allow-Origin', 'https://memologist.herokuapp.com');
     }
 
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
