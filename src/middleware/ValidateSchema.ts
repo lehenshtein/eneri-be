@@ -5,7 +5,7 @@ import Logger from '../library/logger';
 export const ValidateSchema = (schema: ObjectSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body);
+      Logger.log(req.body);
       // console.log(req.files);
       await schema.validateAsync(req.body);
 
@@ -20,37 +20,23 @@ export const ValidateSchema = (schema: ObjectSchema) => {
 const idRegex = /^[0-9a-fA=F]{24}$/;
 const imgRegex = /^(ftp|http|https):\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)/i;
 
-export const Schema = {
-  post: {
-    create: Joi.object({
-      title: Joi.string().required().min(5).max(50),
-      text: Joi.string().empty('').min(10).max(2000),
-      tags: Joi.array().items(Joi.string()),
-      imgUrl: Joi.string().empty(null).regex(imgRegex).max(240),
-      content: Joi.array().items(
-        Joi.object({
-          type: Joi.string().valid('text', 'imgUrl', 'imgName').required(),
-          imgUrl: Joi.string().min(5).max(200),
-          imgName: Joi.string().min(5).max(200),
-          text: Joi.string().min(10).max(2000)
-        })
-      )
-    }),
+const GameValidator = Joi.object({
+  gameSystemId: Joi.number().required(),
+  title: Joi.string().required().min(5).max(50),
+  description: Joi.string().min(10).max(2000),
+  tags: Joi.array().items(Joi.string()),
+  imgUrl: Joi.string().empty(null).regex(imgRegex).max(240),
+  price: Joi.number().min(0),
+  cityCode: Joi.number().required(),
+  byInvite: Joi.boolean().default(false),
+  maxPlayers: Joi.number().min(1).default(1),
+  startDateTime: Joi.date()
+});
 
-    update: Joi.object({
-      title: Joi.string().required().min(5).max(50),
-      text: Joi.string().empty('').min(10).max(2000),
-      tags: Joi.array().items(Joi.string()),
-      imgUrl: Joi.string().empty(null).regex(imgRegex).max(240),
-      content: Joi.array().items(
-        Joi.object({
-          type: Joi.string().valid('text', 'imgUrl', 'imgName').required(),
-          imgUrl: Joi.string().min(5).max(200),
-          imgName: Joi.string().min(5).max(200),
-          text: Joi.string().min(10).max(2000)
-        })
-      )
-    })
+export const Schema = {
+  game: {
+    create: GameValidator,
+    update: GameValidator
   },
 
   authentication: {

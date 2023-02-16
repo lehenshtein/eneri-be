@@ -3,7 +3,6 @@ import { NextFunction, Request, Response } from 'express';
 import User from '../models/User.model';
 
 const getUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  console.log(req);
   if (!req.user) {
     return;
   }

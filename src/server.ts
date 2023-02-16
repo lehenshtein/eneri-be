@@ -4,7 +4,7 @@ import { config } from './config/config';
 import Logger from './library/logger';
 import http from 'http';
 import { addUserToRequest } from './middleware/Authentication';
-import { AuthRoutes, UserRoutes } from './routes/routes';
+import { AuthRoutes, GameRoutes, UserRoutes } from './routes/routes';
 
 const router = express();
 // Connect to mongo
@@ -64,6 +64,7 @@ function StartServer () {
   // Routes
   router.use('/auth', AuthRoutes);
   router.use('/user', UserRoutes);
+  router.use('/game', GameRoutes);
 
   // HealthCheck
   router.get('/ping', (req, res, next) => res.status(200).json({ message: 'eneri online' }));
