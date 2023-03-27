@@ -37,4 +37,7 @@ const GameSchema: Schema = new Schema({
   maxPlayers: { type: Number, required: true, default: 1 },
 }, { timestamps: true });
 
+GameSchema.index({ title: 'text', 'master.username': 'text', tags: 'text' },
+  { name: 'Games_text_index', weights: { title: 30, tags: 20, 'master.username': 10 } });
+
 export default mongoose.model<IGameModel>('Game', GameSchema);
