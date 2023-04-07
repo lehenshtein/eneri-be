@@ -16,7 +16,7 @@ router.get('/apply/:gameId', [
 router.get('/:gameId', controller.readGame);
 router.get('', controller.readAll);
 router.get('/user/:name', controller.getGamesForMaster);
-router.patch('/:gameId', [
+router.put('/:gameId', [
   requireAuthentication as express.RequestHandler,
   ValidateSchema(Schema.game.update)
 ], controller.updateGame);

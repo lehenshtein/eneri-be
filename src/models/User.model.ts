@@ -22,9 +22,9 @@ export interface IUser {
   createdAt: Date,
 }
 interface IContactData {
-  city: { name: string, code: number },
-  phone: number,
-  telegram: string
+  city: { name: string, code: number } | undefined,
+  phone: string | undefined,
+  telegram: string | undefined
 }
 
 export interface IUserModel extends IUser, Document {
@@ -51,7 +51,7 @@ const UserSchema: Schema = new Schema(
         code: { type: Number, required: false },
         name: { type: String, required: false },
       },
-      phone: { type: Number, required: false },
+      phone: { type: String, required: false },
       telegram: { type: String, required: false }
     },
     avatar: { type: String, required: false, default: '' }

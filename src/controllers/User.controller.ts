@@ -1,6 +1,6 @@
 import { AuthRequest } from '../middleware/Authentication';
 import { NextFunction, Request, Response } from 'express';
-import User from '../models/User.model';
+import User, { IUser, IUserModel } from '../models/User.model';
 
 const getUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -32,4 +32,21 @@ const getUserByUsername = async (req: Request, res: Response, next: NextFunction
   }
 };
 
-export default { getUser, getUserByUsername };
+const editUser = async(req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+
+  try {
+    const user: IUserModel | null = await User.findOneAndUpdate(req.user._id, req.body, )
+      .select('-_id -verificationKey -email');
+    if (!user) {
+      return res.status(404).json({ message: 'not found' });
+    }
+    return res.status(200).json({message: 'success'});
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', err });
+  }
+}
+
+export default { getUser, getUserByUsername, editUser };
