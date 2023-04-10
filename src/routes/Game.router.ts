@@ -13,13 +13,15 @@ router.post('', [
 router.get('/apply/:gameId', [
   requireAuthentication as express.RequestHandler
 ], controller.applyGame);
+router.get('/master',[requireAuthentication as express.RequestHandler], controller.getGamesForMaster);
+router.get('/player',[requireAuthentication as express.RequestHandler], controller.getGamesForPlayer);
 router.get('/:gameId', controller.readGame);
 router.get('', controller.readAll);
-router.get('/user/:name', controller.getGamesForMaster);
 router.put('/:gameId', [
   requireAuthentication as express.RequestHandler,
   ValidateSchema(Schema.game.update)
 ], controller.updateGame);
+router.patch('/:gameId/:username', [requireAuthentication as express.RequestHandler], controller.removePlayerFromGame);
 router.delete('/:gameId', controller.deleteGame);
 
 export = router;
