@@ -17,6 +17,8 @@ export interface IGame {
   startDateTime: Date;
   players: Partial<IUserModel>[];
   maxPlayers: number;
+  booked: string[];
+  bookedAmount: number;
 }
 
 export interface IGameModel extends IGame, Document {}
@@ -35,6 +37,8 @@ const GameSchema: Schema = new Schema({
   startDateTime: { type: Date, required: true,  default: new Date().getTime() },
   players: { type: [Schema.Types.ObjectId], required: false, default: [], ref: 'User' },
   maxPlayers: { type: Number, required: true, default: 1 },
+  booked: { type: [String], required: false, default: [] },
+  bookedAmount: { type: Number, required: false, default: 0 },
 }, { timestamps: true });
 
 GameSchema.index({ title: 'text', 'master.username': 'text', tags: 'text' },
