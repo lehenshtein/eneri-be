@@ -30,7 +30,8 @@ const GameValidator = Joi.object({
   cityCode: Joi.number().required(),
   byInvite: Joi.boolean().default(false),
   maxPlayers: Joi.number().min(1).default(1),
-  startDateTime: Joi.date()
+  startDateTime: Joi.date(),
+  booked: Joi.array().items(Joi.string()),
 });
 
 export const Schema = {

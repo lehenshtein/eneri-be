@@ -8,7 +8,7 @@ import { IGameFilters } from '../models/gameFilters.interface';
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, byInvite, startDateTime, maxPlayers } = req.body;
+  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, byInvite, startDateTime, maxPlayers, booked } = req.body;
   const author: IUser = req.user?._id;
   if (!author) {
     return;
@@ -35,7 +35,9 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     price,
     byInvite,
     startDateTime,
-    maxPlayers
+    maxPlayers,
+    booked,
+    bookedAmount: booked.length
   });
   const responseGame = {
     _id: game._id,
@@ -49,7 +51,9 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     price,
     byInvite,
     startDateTime,
-    maxPlayers
+    maxPlayers,
+    booked,
+    bookedAmount: booked.length
   }
 
   return game.save()
@@ -67,6 +71,7 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
           return res.status(403).json({ message: 'Not your game' });
         }
 
+        req.body.bookedAmount = req.body.booked.length;
         game.set(req.body);
 
         return game.save()
@@ -88,7 +93,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
     try {
       const game: IGameModel | null = await Game.findById(gameId)
         .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id contactData name' }])// form ref author we get author obj and can get his name
-        .select('-__v');// get rid of field
+        .select('-booked -__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
       }
@@ -133,7 +138,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
       .limit(+limit)
       .skip((+page - 1) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
-      .select('-__v'); // get rid of field
+      .select('-booked -__v'); // get rid of field
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
@@ -152,6 +157,9 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
   if (req.user?.status === 'banned') {
     return res.status(403).json({ message: 'You were banned' });
   }
+  if (!req.user?.contactData.telegram) {
+    return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
+  }
 
   try {
     const game: IGameModel | null = await Game.findById(gameId)
@@ -169,7 +177,17 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
     if (game.players.find(player => player._id.equals(req.user!._id))) {
       return res.status(405).json({ message: 'You are already applied' });
     }
-
+    if (game.bookedAmount) {
+      const bookedUserIndex = game.booked.findIndex((telegram: string) => telegram.toLowerCase() === req.user?.contactData.telegram?.toLowerCase());
+      if (bookedUserIndex !== -1) {
+        const newBookedPlayers = [...game.booked];
+        newBookedPlayers.splice(bookedUserIndex, 1);
+        game.booked = [...newBookedPlayers];
+        game.bookedAmount -= 1;
+      } else if ((game.players.length + game.bookedAmount) >= game.maxPlayers) {
+        return res.status(405).json({ message: 'Залишились тільки зарезервовані місця' });
+      }
+    }
 
     if (game.players.length === (game.maxPlayers - 1)) {
       game.isSuspended = true;
@@ -279,7 +297,7 @@ const getGamesForPlayer = async (req: AuthRequest, res: Response, next: NextFunc
       .limit(+limit)
       .skip((+page - 1) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
-      .select('-__v'); // get rid of field
+      .select('-booked -__v'); // get rid of field
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
@@ -328,7 +346,7 @@ function sortGames (sort: number, filters: IGameFilters) {
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
   return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
-  // return Game.find({ startDateTime: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
+  // return Game.fi2nd({ startDateTime: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
     //to show only future game, uncomment this and comment 2 upper rows
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
