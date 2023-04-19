@@ -13,9 +13,7 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
   if (!author) {
     return;
   }
-  if (req.user?.status === 'banned' || req.user?.status === 'muted') {
-    return res.status(403).json({ message: 'You were banned or muted' });
-  }
+
   if (req.user?.gameRole !== 'both') {
     return res.status(403).json({ message: 'You have no Master permissions' });
   }

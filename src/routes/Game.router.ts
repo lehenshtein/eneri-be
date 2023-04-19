@@ -1,13 +1,14 @@
 import express from 'express';
 import controller from '../controllers/Game.controller';
 import { Schema, ValidateSchema } from '../middleware/ValidateSchema';
-import { requireAuthentication } from '../middleware/Authentication';
+import { requireAuthentication, requireNotToBeBanned } from '../middleware/Authentication';
 
 
 const router = express.Router();
 
 router.post('', [
   requireAuthentication as express.RequestHandler,
+  requireNotToBeBanned,
   ValidateSchema(Schema.game.create)
 ], controller.createGame);
 router.get('/apply/:gameId', [

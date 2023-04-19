@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-
 export interface IUser {
   name: string,
   username: string,
@@ -8,6 +7,7 @@ export interface IUser {
   confirmedEmail: boolean,
   password: string,
   salt: string,
+  about: string,
   birthDate: Date,
   role: 'superAdmin' | 'admin' | 'moderator' | 'user',
   gameRole: 'player' | 'both',
@@ -17,6 +17,7 @@ export interface IUser {
   status: 'default' | 'muted' | 'banned',
   statusTillDate: Date | null,
   contactData: IContactData,
+  showContacts: boolean,
   avatar: string,
   updatedAt: Date,
   createdAt: Date,
@@ -25,6 +26,17 @@ interface IContactData {
   city: { name: string, code: number } | undefined,
   phone: string | undefined,
   telegram: string | undefined
+}
+
+export interface IUserAsMaster {
+  name: string,
+  username: string,
+  about: string,
+  gamesLeaded: number,
+  gamesPlayed: number,
+  telegram: string | undefined,
+  avatar: string,
+  createdAt: Date,
 }
 
 export interface IUserModel extends IUser, Document {
@@ -38,6 +50,7 @@ const UserSchema: Schema = new Schema(
     confirmedEmail: { type: Boolean, required: true, default: false },
     password: { type: String, required: true, select: false },
     salt: { type: String, required: true, select: false },
+    about: { type: String, required: false, default: '', maxlength: 120 },
     birthDate: { type: Date, required: false },
     gameRole: { type: String, required: true, default: 'player' },
     gamesLeaded: { type: Number, required: true, default: 0 },
@@ -54,6 +67,7 @@ const UserSchema: Schema = new Schema(
       phone: { type: String, required: false },
       telegram: { type: String, required: false }
     },
+    showContacts: { type: Boolean, default: false, required: false },
     avatar: { type: String, required: false, default: '' }
   },
   {

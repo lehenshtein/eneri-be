@@ -50,5 +50,12 @@ export const Schema = {
       email: Joi.string().required().email({ tlds: { allow: false } }),
       password: Joi.string().required().min(8).max(40)
     })
-  }
+  },
+
+  userUpdate: Joi.object({
+    name: Joi.string().max(30),
+    about: Joi.string().max(600),
+    showContacts: Joi.boolean(),
+    contactData: Joi.object()
+  })
 };

@@ -39,7 +39,14 @@ export const addUserToRequest = async (req: AuthRequest, res: Response, next: Ne
 
 export const requireAuthentication = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
-    return res.status(401).json({ message: 'Invalid or missing authentication token' });
+    return res.status(401).json({ message: 'Невірний чи неіснуючий токен авторизації' });
+  }
+  next();
+};
+
+export const requireNotToBeBanned = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (req.user?.status === 'banned') {
+    return res.status(403).json({ message: 'Вас було забанено' });
   }
   next();
 };
