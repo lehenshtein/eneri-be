@@ -54,7 +54,7 @@ export const Schema = {
 
   userUpdate: Joi.object({
     name: Joi.string().max(30),
-    about: Joi.string().max(600),
+    about: Joi.string().empty('').max(600),
     showContacts: Joi.boolean(),
     contactData: Joi.object()
   })
