@@ -132,7 +132,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
   }
 
   try {
-    let games: IGameModel[] = await sortGames(+sort, filters)
+    let games: IGameModel[] = await sortGames(+sort, filters, true)
       .limit(+limit)
       .skip((+page - 1) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
@@ -300,7 +300,8 @@ const getGamesForPlayer = async (req: AuthRequest, res: Response, next: NextFunc
   }
 };
 
-function sortGames (sort: number, filters: IGameFilters) {
+function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolean = false) {
+  let dateFilter = {};
   let searchField = {};
   let isShowSuspended = {};
   let gameSystemId = {};
@@ -326,19 +327,15 @@ function sortGames (sort: number, filters: IGameFilters) {
     player = {players: filters.player}
   }
 
-  // if (sort === 'date') {
-  //   return Game.find(searchField)
-  //     .sort('-startDateTime');
-  // }
-  // if (sort === 'rate') {
-  //   return Game.find(searchField)
-  //     .sort('-master.rate');
-  // }
+
   const lastDaysToTakeGames = 30;
   const d = new Date();
   // d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
+  if (onlyFutureGames) {
+    dateFilter = { startDateTime: { $gt: d }}
+  }
   // return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
-  return Game.find({ startDateTime: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
+  return Game.find({ ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
     //to show only future game, uncomment this and comment 2 upper rows
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
