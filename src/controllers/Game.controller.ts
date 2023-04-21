@@ -336,7 +336,7 @@ function sortGames (sort: number, filters: IGameFilters) {
   // }
   const lastDaysToTakeGames = 30;
   const d = new Date();
-  d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
+  // d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
   // return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
   return Game.find({ startDateTime: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
     //to show only future game, uncomment this and comment 2 upper rows
