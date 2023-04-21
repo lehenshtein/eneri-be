@@ -152,9 +152,6 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
   if (!player) {
     return;
   }
-  if (req.user?.status === 'banned') {
-    return res.status(403).json({ message: 'You were banned' });
-  }
   if (!req.user?.contactData.telegram) {
     return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
   }
@@ -205,9 +202,6 @@ const removePlayerFromGame = async (req: AuthRequest, res: Response, next: NextF
   const user: IUserModel | null | undefined = req.user;
   if (!user) {
     return;
-  }
-  if (req.user?.status === 'banned') {
-    return res.status(403).json({ message: 'You were banned' });
   }
 
   try {
@@ -343,8 +337,8 @@ function sortGames (sort: number, filters: IGameFilters) {
   const lastDaysToTakeGames = 30;
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
-  return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
-  // return Game.fi2nd({ startDateTime: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
+  // return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
+  return Game.find({ startDateTime: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
     //to show only future game, uncomment this and comment 2 upper rows
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }

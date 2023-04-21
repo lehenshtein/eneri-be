@@ -12,7 +12,8 @@ router.post('', [
   ValidateSchema(Schema.game.create)
 ], controller.createGame);
 router.get('/apply/:gameId', [
-  requireAuthentication as express.RequestHandler
+  requireAuthentication as express.RequestHandler,
+  requireNotToBeBanned
 ], controller.applyGame);
 router.get('/master',[requireAuthentication as express.RequestHandler], controller.getGamesForMaster);
 router.get('/player',[requireAuthentication as express.RequestHandler], controller.getGamesForPlayer);
