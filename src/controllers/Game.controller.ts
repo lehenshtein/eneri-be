@@ -121,7 +121,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
 };
 
 const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const page = req.query.page || 1;
+  const page = req.query.page || 0;
   const limit = req.query.limit || 10;
   const sort = req.query.sort || sortEnum.closestDate;
   const filters = {
@@ -134,12 +134,14 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     let games: IGameModel[] = await sortGames(+sort, filters, true)
       .limit(+limit)
-      .skip((+page - 1) * +limit)
+      .skip((+page) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
+    let total = await sortGames(+sort, filters, true).count();
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
+    res.header('X-Total', total.toString());
     return res.status(200).json(games);
   } catch (err) {
     return res.status(500).json({ message: 'Server error', err });
@@ -238,7 +240,7 @@ const removePlayerFromGame = async (req: AuthRequest, res: Response, next: NextF
 
 const getGamesForMaster = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const user: IUserModel | null | undefined = req.user;
-  const page = req.query.page || 1;
+  const page = req.query.page || 0;
   const limit = req.query.limit || 10;
   const sort = req.query.sort || sortEnum.closestDate;
 
@@ -257,12 +259,14 @@ const getGamesForMaster = async (req: AuthRequest, res: Response, next: NextFunc
   try {
     const games: IGameModel[] = await sortGames(+sort, filters)
       .limit(+limit)
-      .skip((+page - 1) * +limit)
+      .skip((+page) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-__v'); // get rid of field
+    let total = await sortGames(+sort, filters).count();
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
+    res.header('X-Total', total.toString());
 
     return res.status(200).json(games);
   } catch (err) {
@@ -272,7 +276,7 @@ const getGamesForMaster = async (req: AuthRequest, res: Response, next: NextFunc
 
 const getGamesForPlayer = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const user: IUserModel | null | undefined = req.user;
-  const page = req.query.page || 1;
+  const page = req.query.page || 0;
   const limit = req.query.limit || 10;
   const sort = req.query.sort || sortEnum.closestDate;
 
@@ -287,12 +291,14 @@ const getGamesForPlayer = async (req: AuthRequest, res: Response, next: NextFunc
   try {
     const games: IGameModel[] = await sortGames(+sort, filters)
       .limit(+limit)
-      .skip((+page - 1) * +limit)
+      .skip((+page) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
+    let total = await sortGames(+sort, filters).count();
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
+    res.header('X-Total', total.toString());
 
     return res.status(200).json(games);
   } catch (err) {
@@ -334,8 +340,9 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   if (onlyFutureGames) {
     dateFilter = { startDateTime: { $gt: d }}
   }
+  const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
   // return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
-  return Game.find({ ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
+  return Game.find(query)
     //to show only future game, uncomment this and comment 2 upper rows
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
