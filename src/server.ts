@@ -49,7 +49,7 @@ function StartServer () {
     }
 
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Expose-Headers', 'X-Page, X-Limit');
+    res.header('Access-Control-Expose-Headers', 'X-Page, X-Limit, X-Total');
     if (req.method === 'OPTIONS') {
       res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
       return res.status(200).json({});

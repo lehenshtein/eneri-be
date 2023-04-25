@@ -25,7 +25,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
   const user = new User({
     _id: new mongoose.Types.ObjectId(),
-    username,
+    username: username.trim(),
     email,
     password: hashedPassword,
     salt,
