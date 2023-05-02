@@ -21,6 +21,9 @@ export interface IUser {
   avatar: string,
   updatedAt: Date,
   createdAt: Date,
+  verified: boolean,
+  verificationKey: string,
+  verificationDate: Date,
 }
 interface IContactData {
   city: { name: string, code: number } | undefined,
@@ -68,7 +71,10 @@ const UserSchema: Schema = new Schema(
       telegram: { type: String, required: false }
     },
     showContacts: { type: Boolean, default: false, required: false },
-    avatar: { type: String, required: false, default: '' }
+    avatar: { type: String, required: false, default: '' },
+    verified: { type: Boolean, required: true, default: false },
+    verificationKey: { type: String, required: true },
+    verificationDate: { type: Date, required: true, default: new Date() },
   },
   {
     versionKey: false,
