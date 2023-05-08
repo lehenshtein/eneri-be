@@ -19,6 +19,7 @@ const frontUrl = NODE_ENV === 'local' ? frontLocalUrl : NODE_ENV === 'dev' ? fro
 
 const supportedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
 const maxImageSize = 1024 * 1024 * 3; // 3 MB
+const imgResizeWidth = 420; // width of pictures which will be returned to FE
 
 const ImagekitID = process.env.IMAGEKIT_ID || '';
 const ImagekitUrl = `https://ik.imagekit.io/${ImagekitID}`;
@@ -40,4 +41,5 @@ export const config = {
   maxImageSize: maxImageSize,
   ImagekitID: ImagekitID,
   ImagekitUrl: ImagekitUrl,
+  imgResizeWidth: imgResizeWidth,
 };

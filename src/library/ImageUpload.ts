@@ -63,7 +63,9 @@ const uploadFile = async (files: fileType, imgUrl?: string) => {
 
   try {
     const response = await imagekit.upload(postData as UploadOptions);
-    return { result: true, message: '', imgUrl: response.url };
+    const urlPart = `${config.ImagekitID}/`;
+    const resizedUrl = response.url.replace(urlPart, `${urlPart}tr:w-${config.imgResizeWidth}/`);
+    return { result: true, message: '', imgUrl: resizedUrl };
   } catch (err) {
     let msg = '';
     if (err instanceof Error) {
