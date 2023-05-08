@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import User from '../models/User.model';
+import User, { IUserModel } from '../models/User.model';
 import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
+import { AuthRequest } from "../middleware/Authentication";
+import { sendVerificationEmail } from "../library/EmailSender";
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, password } = req.body;
@@ -20,8 +22,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
   const salt = generateSalt();
   const hashedPassword = hashPassword(password, salt);
-  // const verificationKey = generateVerificationKey();
-  // const emailData = createEmailData(verificationKey);
+  const verificationKey = generateVerificationKey();
 
   const user = new User({
     _id: new mongoose.Types.ObjectId(),
@@ -29,11 +30,11 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     email,
     password: hashedPassword,
     salt,
-    // verificationKey
+    verificationKey,
   });
   return user.save()
     .then(() => {
-      // sendMail(email, emailData);
+      sendVerificationEmail(user.email, verificationKey);
       return res.status(201).json({ token: createToken(username, email) });
     })
     .catch((err: Error) => res.status(500).json({ message: 'Server error', err }));
@@ -55,6 +56,52 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const verify = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const user: IUserModel | null | undefined = req.user;
+  const { code } = req.params;
+
+  if (user?.verified) {
+    return res.status(403).json({ message: 'Already verified' });
+  }
+
+  try {
+    if (user?.verificationKey === code) {
+      user.verified = true;
+      await user.save();
+      res.status(200).json({ message: 'Verified' });
+    } else {
+      res.status(403).json({ message: 'Wrong verification key' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', err });
+  }
+};
+
+const resendMail = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const user: IUserModel | null | undefined = req.user;
+
+  if (user?.verified) {
+    return res.status(403).json({ message: 'Already verified' });
+  }
+
+  if (user) {
+    const verificationKey = generateVerificationKey();
+    const currentDate: Date = new Date();
+    const nextEmailDate: Date = new Date(user.verificationDate.setHours(user.verificationDate.getHours() + 1));
+    if (nextEmailDate > currentDate) {
+      return res.status(403).json({ message: 'Please wait before sending the email again' });
+    }
+    user.verificationKey = verificationKey;
+    user.verificationDate = currentDate;
+    return user.save()
+      .then(user => {
+        sendVerificationEmail(user.email, verificationKey);
+        return res.status(201).json(user);
+      })
+      .catch(err => res.status(500).json({ message: 'Server error', err }));
+  }
+};
+
 const generateSalt = () => {
   return Crypto.randomBytes(32).toString('base64');
 };
@@ -71,4 +118,8 @@ const createToken = (name: string, email: string) => {
   );
 };
 
-export default { register, login };
+const generateVerificationKey = () => {
+  return Crypto.randomBytes(4).toString('hex');
+};
+
+export default { register, login, verify, resendMail };
