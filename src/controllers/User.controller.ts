@@ -1,6 +1,7 @@
 import { AuthRequest } from '../middleware/Authentication';
 import { NextFunction, Request, Response } from 'express';
 import User, { IUser, IUserAsMaster, IUserModel } from '../models/User.model';
+import { isImageUploaded, uploadFile, fileType } from "../library/ImageUpload";
 
 const getUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -53,6 +54,15 @@ const editUser = async(req: AuthRequest, res: Response, next: NextFunction) => {
   if (req.user.gameRole === 'player') {
     req.body.about = '';
     req.body.showContacts = false;
+  }
+
+  if (req.body.avatar && !isImageUploaded(req.body.avatar)) {
+    const uploadResult = await uploadFile(req.files as fileType, req.body.avatar);
+    if (uploadResult.result) {
+      req.body.avatar = uploadResult.imgUrl;
+    } else {
+      return res.status(400).json({ message: uploadResult.message });
+    }
   }
 
   try {

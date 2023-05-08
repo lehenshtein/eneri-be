@@ -5,6 +5,7 @@ import { AuthRequest } from '../middleware/Authentication';
 import Game, { IGameModel } from '../models/Game.model';
 import { sortEnum } from '../models/gameSort.enum';
 import { IGameFilters } from '../models/gameFilters.interface';
+import { isImageUploaded, uploadFile, fileType } from "../library/ImageUpload";
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -37,6 +38,16 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     booked,
     bookedAmount: booked.length
   });
+
+  if (game.imgUrl && !isImageUploaded(game.imgUrl)) {
+    const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
+    if (uploadResult.result) {
+      game.imgUrl = uploadResult.imgUrl as string;
+    } else {
+      return res.status(400).json({ message: uploadResult.message });
+    }
+  }
+
   const responseGame = {
     _id: game._id,
     master: {username: req.user?.username},
@@ -71,6 +82,15 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
 
         req.body.bookedAmount = req.body.booked.length;
         game.set(req.body);
+
+        if (game.imgUrl && !isImageUploaded(game.imgUrl)) {
+          const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
+          if (uploadResult.result) {
+            game.imgUrl = uploadResult.imgUrl as string;
+          } else {
+            return res.status(400).json({ message: uploadResult.message });
+          }
+        }
 
         // reopen games if start date was updated
         if (game.startDateTime >= new Date()) {
