@@ -11,6 +11,12 @@ const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || '';
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
+const frontProdUrl = 'http://eneri.com.ua/';
+const frontStageUrl = 'http://memologist.herokuapp.com/';
+const frontLocalUrl = 'http://localhost:4200/';
+
+const frontUrl = NODE_ENV === 'local' ? frontLocalUrl : NODE_ENV === 'dev' ? frontStageUrl : frontProdUrl;
+
 export const config = {
   mongo: {
     url: MONGO_URL
@@ -22,5 +28,6 @@ export const config = {
   email: {
     login: EMAIL_LOGIN,
     password: EMAIL_PASSWORD
-  }
+  },
+  frontUrl: frontUrl,
 };

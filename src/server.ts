@@ -5,6 +5,7 @@ import Logger from './library/logger';
 import http from 'http';
 import { addUserToRequest } from './middleware/Authentication';
 import { AuthRoutes, GameRoutes, UserRoutes } from './routes/routes';
+import { startCronJobs } from "./cron/CronIndex";
 
 const router = express();
 // Connect to mongo
@@ -33,6 +34,10 @@ function StartServer () {
 
     next();
   });
+
+  if (config.env !== 'local') { // disabling cron for local env
+    startCronJobs();
+  }
 
   router.use(express.urlencoded({ extended: true }));
   router.use(express.json());

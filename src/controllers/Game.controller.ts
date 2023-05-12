@@ -72,6 +72,11 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
         req.body.bookedAmount = req.body.booked.length;
         game.set(req.body);
 
+        // reopen games if start date was updated
+        if (game.startDateTime >= new Date()) {
+          game.isSuspended = false;
+        }
+
         return game.save()
           .then(game => res.status(201).json(game))
           .catch(err => res.status(500).json({ message: 'Server error', err }));
