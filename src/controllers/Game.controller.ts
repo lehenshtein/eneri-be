@@ -137,7 +137,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
       .skip((+page) * +limit)
       .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
-    let total = await sortGames(+sort, filters, true).count();
+    let total = await sortGames(+sort, filters, false).count(); //make true for future games only
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
@@ -336,14 +336,15 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
 
   const lastDaysToTakeGames = 30;
   const d = new Date();
-  // d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
+  d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
   if (onlyFutureGames) {
     dateFilter = { startDateTime: { $gt: d }}
   }
   const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
-  // return Game.find({ createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player })
+  // const query = { createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
+  // to show only future game, uncomment this and comment 2 upper rows
   return Game.find(query)
-    //to show only future game, uncomment this and comment 2 upper rows
+    .sort('isSuspended')
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
 
