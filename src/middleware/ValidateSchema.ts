@@ -53,7 +53,7 @@ export const Schema = {
   },
 
   userUpdate: Joi.object({
-    name: Joi.string().max(30),
+    name: Joi.string().max(30).empty(''),
     about: Joi.string().empty('').max(600),
     showContacts: Joi.boolean(),
     contactData: Joi.object()
