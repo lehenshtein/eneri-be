@@ -12,7 +12,7 @@ const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || '';
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const frontProdUrl = 'http://eneri.com.ua/';
-const frontStageUrl = 'http://memologist.herokuapp.com/';
+const frontStageUrl = 'http://eneri.com.ua/';
 const frontLocalUrl = 'http://localhost:4200/';
 
 const frontUrl = NODE_ENV === 'local' ? frontLocalUrl : NODE_ENV === 'dev' ? frontStageUrl : frontProdUrl;
