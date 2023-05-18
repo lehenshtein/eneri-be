@@ -61,7 +61,7 @@ export async function sendVerificationEmail (receiver: string, verificationKey: 
             ${config.frontUrl}verification/${verificationKey}
           </a></p>
           <br>
-          <p>Або вставте цей код: ${verificationKey} у поле верифікації за адресою нижче.</p>
+          <p>Або вставте цей код: <i>${verificationKey}</i> у поле верифікації за адресою нижче.</p>
           <p><a href='${config.frontUrl}verification'>
               ${config.frontUrl}verification
             </a></p>
