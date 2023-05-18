@@ -96,7 +96,7 @@ const resendMail = async (req: AuthRequest, res: Response, next: NextFunction) =
     return user.save()
       .then(user => {
         sendVerificationEmail(user.email, verificationKey);
-        return res.status(201).json(user);
+        return res.status(201).json(user.verificationDate);
       })
       .catch(err => res.status(500).json({ message: 'Server error', err }));
   }
