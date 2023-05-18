@@ -50,13 +50,13 @@ export default class EmailSender {
 
 export async function sendVerificationEmail (receiver: string, verificationKey: string) {
   const emailData = {
-    subject: 'ЕНЕРІ | Верифікація пошти. ENERI | Email verification.',
+    subject: 'ЕНЕРІ | Верифікація пошти.',
     text:
           `<p><b><a href="https://eneri.com.ua">ЕНЕРІ</a> - настільні рольові ігри в Україні.</b></p>
           <p>Будь-ласка, підтвердь свою пошту, натиснувши на посилання знизу.</p>
           <p>Або вставте цей код у поле верифікації: ${verificationKey}.</p>
-          <p>Please, confirm your email, by clicking on the link below.</p>
-          <p>Or paste this code to verification input: ${verificationKey}.</p>
+          <br>
+          <p>Ви маєте бути авторизовані на ЕНЕРІ на пристрої з якого підтверджуєте пошту!</p>
           <p><a href='${config.frontUrl}verification/${verificationKey}'>
             ${config.frontUrl}verification/${verificationKey}
           </a></p>
