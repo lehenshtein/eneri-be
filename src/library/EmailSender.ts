@@ -54,12 +54,17 @@ export async function sendVerificationEmail (receiver: string, verificationKey: 
     text:
           `<p><b><a href="https://eneri.com.ua">ЕНЕРІ</a> - настільні рольові ігри в Україні.</b></p>
           <p>Будь-ласка, підтвердь свою пошту, натиснувши на посилання знизу.</p>
-          <p>Або вставте цей код у поле верифікації: ${verificationKey}.</p>
+          <p>Або скопіюйте посилання у браузер.</p>
           <br>
           <p>Ви маєте бути авторизовані на ЕНЕРІ на пристрої з якого підтверджуєте пошту!</p>
           <p><a href='${config.frontUrl}verification/${verificationKey}'>
             ${config.frontUrl}verification/${verificationKey}
           </a></p>
+          <br>
+          <p>Або вставте цей код: ${verificationKey} у поле верифікації за адресою нижче.</p>
+          <p><a href='${config.frontUrl}verification'>
+              ${config.frontUrl}verification
+            </a></p>
           <p></p>
           <a href="https://eneri.com.ua">eneri.com.ua</a>`
   };
