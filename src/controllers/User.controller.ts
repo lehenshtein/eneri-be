@@ -1,6 +1,7 @@
 import { AuthRequest } from '../middleware/Authentication';
 import { NextFunction, Request, Response } from 'express';
 import User, { IUser, IUserAsMaster, IUserModel } from '../models/User.model';
+import Crypto from 'crypto';
 
 const getUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -116,5 +117,28 @@ const changeGameRole = async (req: AuthRequest, res: Response, next: NextFunctio
     return res.status(500).json({ message: 'Server error', err });
   }
 }
+const changeEmailVerification = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  //:TODO create middleware for roles, controller for admin requests
+  if (req.user?.role !== 'superAdmin' && req.user?.role !== 'admin' && req.user?.role !== 'moderator') {
+    return res.status(403).json({ message: 'You have no permissions' });
+  }
+  const { username } = req.params;
 
-export default { getUser, getUserByUsername, editUser, getUserForAdmin, changeGameRole };
+  try {
+    const user = await User.findOne({username}, '-verificationKey');
+    if (!user) {
+      return res.status(404).json({message: 'not found'});
+    }
+    user.verified = !user.verified;
+    if (user.verified) {
+      user.verificationDate = new Date();
+    }
+    user.verificationKey = Crypto.randomBytes(4).toString('hex');
+    await user.save();
+    return res.status(200).json({verificationDate: user.verificationDate, verified: user.verified})
+  } catch(err) {
+    return res.status(500).json({ message: 'Server error', err });
+  }
+}
+
+export default { getUser, getUserByUsername, editUser, getUserForAdmin, changeGameRole, changeEmailVerification };

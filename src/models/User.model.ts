@@ -51,7 +51,7 @@ const UserSchema: Schema = new Schema(
     email: { type: String, lowercase: true, required: true, unique: true },
     password: { type: String, required: true, select: false },
     salt: { type: String, required: true, select: false },
-    about: { type: String, required: false, default: '', maxlength: 120 },
+    about: { type: String, required: false, default: '', maxlength: 600 },
     birthDate: { type: Date, required: false },
     gameRole: { type: String, required: true, default: 'player' },
     gamesLeaded: { type: Number, required: true, default: 0 },
