@@ -8,6 +8,7 @@ export interface IGame {
   gameSystemId: IGameSystem['_id'];
   title: string;
   description: string;
+  organizedPlay: boolean;
   imgUrl: string;
   tags: string[];
   cityCode: ICity['code'];
@@ -28,6 +29,7 @@ const GameSchema: Schema = new Schema({
   gameSystemId: { type: Number, required: true },
   title: { type: String, required: true },
   description: { type: String, required: false },
+  organizedPlay: { type: Boolean, required: false, default: false },
   tags: { type: [String], required: false },
   imgUrl: { type: String, required: false },
   price: { type: Number, required: true },

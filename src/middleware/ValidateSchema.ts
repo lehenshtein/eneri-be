@@ -5,8 +5,6 @@ import Logger from '../library/logger';
 export const ValidateSchema = (schema: ObjectSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      Logger.log(req.body);
-      // console.log(req.files);
       await schema.validateAsync(req.body);
 
       next();
@@ -24,6 +22,7 @@ const GameValidator = Joi.object({
   gameSystemId: Joi.number().required(),
   title: Joi.string().required().min(5).max(50),
   description: Joi.string().min(10).max(2000),
+  organizedPlay: Joi.boolean(),
   tags: Joi.array().items(Joi.string()),
   imgUrl: Joi.string().empty(null).regex(imgRegex).max(240),
   price: Joi.number().min(0),
@@ -53,7 +52,7 @@ export const Schema = {
   },
 
   userUpdate: Joi.object({
-    name: Joi.string().max(30),
+    name: Joi.string().max(30).empty(''),
     about: Joi.string().empty('').max(600),
     showContacts: Joi.boolean(),
     contactData: Joi.object()
