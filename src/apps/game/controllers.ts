@@ -1,11 +1,11 @@
 import { Express, NextFunction, Response, text } from 'express';
 import mongoose from 'mongoose';
-import User, { IUser, IUserModel } from '../models/User.model';
-import { AuthRequest } from '../middleware/Authentication';
-import Game, { IGameModel } from '../models/Game.model';
-import { sortEnum } from '../models/gameSort.enum';
-import { IGameFilters } from '../models/gameFilters.interface';
-import { isImageUploaded, uploadFile, fileType } from "../library/ImageUpload";
+import User, { IUser, IUserModel } from '../user/models';
+import { AuthRequest } from '../../middleware/Authentication';
+import Game, { IGameModel } from './models';
+import { sortEnum } from '../../models/gameSort.enum';
+import { IGameFilters } from '../../models/gameFilters.interface';
+import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {

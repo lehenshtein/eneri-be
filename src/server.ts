@@ -4,7 +4,7 @@ import { config } from './config/config';
 import Logger from './library/logger';
 import http from 'http';
 import { addUserToRequest } from './middleware/Authentication';
-import { AuthRoutes, GameRoutes, UserRoutes } from './routes/routes';
+import { AuthRoutes, GameRoutes, UserRoutes, GameRequestRoutes } from './routes';
 import { startCronJobs } from "./cron/CronIndex";
 
 const router = express();
@@ -70,6 +70,7 @@ function StartServer () {
   router.use('/auth', AuthRoutes);
   router.use('/user', UserRoutes);
   router.use('/game', GameRoutes);
+  router.use('/game_request', GameRequestRoutes);
 
   // HealthCheck
   router.get('/ping', (req, res, next) => res.status(200).json({ message: 'eneri online' }));

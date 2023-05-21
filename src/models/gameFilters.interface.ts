@@ -6,5 +6,6 @@ export interface IGameFilters {
   gameSystemId: number | null;
   cityCode: number | null;
   master?: ObjectId;
+  creator?: ObjectId;
   player?: ObjectId;
 }

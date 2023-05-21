@@ -1,9 +1,9 @@
-import controller from '../controllers/User.controller';
-import { requireAuthentication } from '../middleware/Authentication';
+import controller from './controllers';
+import { requireAuthentication } from '../../middleware/Authentication';
 import express from 'express';
-import { Schema, ValidateSchema } from '../middleware/ValidateSchema';
-import { multipartConvert } from "../middleware/MultipartConvert";
-import { uploadHandler } from "../library/ImageUpload";
+import { Schema, ValidateSchema } from '../../middleware/ValidateSchema';
+import { multipartConvert } from "../../middleware/MultipartConvert";
+import { uploadHandler } from "../../library/ImageUpload";
 
 const router = express.Router();
 

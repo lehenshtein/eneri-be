@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import User, { IUserModel } from '../models/User.model';
+import User, { IUserModel } from '../user/models';
 import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
-import { AuthRequest } from "../middleware/Authentication";
-import { sendVerificationEmail } from "../library/EmailSender";
+import { AuthRequest } from "../../middleware/Authentication";
+import { sendVerificationEmail } from "../../library/EmailSender";
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, password } = req.body;

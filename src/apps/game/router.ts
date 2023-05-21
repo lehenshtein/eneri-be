@@ -1,9 +1,9 @@
 import express from 'express';
-import controller from '../controllers/Game.controller';
-import { Schema, ValidateSchema } from '../middleware/ValidateSchema';
-import { requireAuthentication, requireNotToBeBanned } from '../middleware/Authentication';
-import { multipartConvert } from "../middleware/MultipartConvert";
-import { uploadHandler } from "../library/ImageUpload";
+import controller from './controllers';
+import { Schema, ValidateSchema } from '../../middleware/ValidateSchema';
+import { requireAuthentication, requireNotToBeBanned } from '../../middleware/Authentication';
+import { multipartConvert } from "../../middleware/MultipartConvert";
+import { uploadHandler } from "../../library/ImageUpload";
 
 const router = express.Router();
 
