@@ -61,16 +61,16 @@ const verify = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { code } = req.params;
 
   if (user?.verified) {
-    return res.status(403).json({ message: 'Already verified' });
+    return res.status(403).json({ message: 'Ви вже підтвердили пошту' });
   }
 
   try {
     if (user?.verificationKey === code) {
       user.verified = true;
       await user.save();
-      res.status(200).json({ message: 'Verified' });
+      res.status(200).json({ message: 'Підтверджено' });
     } else {
-      res.status(403).json({ message: 'Wrong verification key' });
+      res.status(403).json({ message: 'Невірний ключ' });
     }
   } catch (err) {
     res.status(500).json({ message: 'Server error', err });
@@ -96,7 +96,7 @@ const resendMail = async (req: AuthRequest, res: Response, next: NextFunction) =
     return user.save()
       .then(user => {
         sendVerificationEmail(user.email, verificationKey);
-        return res.status(201).json(user);
+        return res.status(201).json(user.verificationDate);
       })
       .catch(err => res.status(500).json({ message: 'Server error', err }));
   }

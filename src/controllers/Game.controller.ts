@@ -95,7 +95,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
   if (isMaster === 'true') {
     try {
       const game: IGameModel | null = await Game.findById(gameId)
-        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id contactData name' }])// form ref author we get author obj and can get his name
+        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id contactData name verified' }])// form ref author we get author obj and can get his name
         .select('-__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
@@ -113,7 +113,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
   else {
     try {
       const game: IGameModel | null = await Game.findById(gameId)
-        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])// form ref author we get author obj and can get his name
+        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id verified' }])// form ref author we get author obj and can get his name
         .select('-booked -__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
