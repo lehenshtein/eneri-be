@@ -1,4 +1,4 @@
-import Game from '../apps/game/models';
+import Game from '../apps/game/game.models';
 
 export async function closeCompletedGames () {
   const hoursToClose = 1;

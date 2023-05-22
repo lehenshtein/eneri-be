@@ -1,34 +1,34 @@
 import express from 'express';
-import controller from './controllers';
+import controller from './game.controllers';
 import { Schema, ValidateSchema } from '../../middleware/ValidateSchema';
 import { requireAuthentication, requireNotToBeBanned } from '../../middleware/Authentication';
 import { multipartConvert } from "../../middleware/MultipartConvert";
 import { uploadHandler } from "../../library/ImageUpload";
 
-const router = express.Router();
+const gameRouter = express.Router();
 
-router.post('', [
+gameRouter.post('', [
   requireAuthentication as express.RequestHandler,
   requireNotToBeBanned,
   uploadHandler,
   multipartConvert,
   ValidateSchema(Schema.game.create)
 ], controller.createGame);
-router.get('/apply/:gameId', [
+gameRouter.get('/apply/:gameId', [
   requireAuthentication as express.RequestHandler,
   requireNotToBeBanned
 ], controller.applyGame);
-router.get('/master',[requireAuthentication as express.RequestHandler], controller.getGamesForMaster);
-router.get('/player',[requireAuthentication as express.RequestHandler], controller.getGamesForPlayer);
-router.get('/:gameId', controller.readGame);
-router.get('', controller.readAll);
-router.put('/:gameId', [
+gameRouter.get('/master',[requireAuthentication as express.RequestHandler], controller.getGamesForMaster);
+gameRouter.get('/player',[requireAuthentication as express.RequestHandler], controller.getGamesForPlayer);
+gameRouter.get('/:gameId', controller.readGame);
+gameRouter.get('', controller.readAll);
+gameRouter.put('/:gameId', [
   requireAuthentication as express.RequestHandler,
   uploadHandler,
   multipartConvert,
   ValidateSchema(Schema.game.update)
 ], controller.updateGame);
-router.patch('/:gameId/:username', [requireAuthentication as express.RequestHandler], controller.removePlayerFromGame);
-router.delete('/:gameId', controller.deleteGame);
+gameRouter.patch('/:gameId/:username', [requireAuthentication as express.RequestHandler], controller.removePlayerFromGame);
+gameRouter.delete('/:gameId', controller.deleteGame);
 
-export = router;
+export = gameRouter;

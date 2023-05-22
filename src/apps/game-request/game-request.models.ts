@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IUserModel } from '../user/models';
+import { IUserModel } from '../user/user.models';
 import { IGameSystem } from '../../models/GameSystem.interface';
 import { ICity } from '../../models/City.interface';
 

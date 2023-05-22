@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import Logger from '../library/logger';
 import jwt from 'jsonwebtoken';
-import User, { IUserModel } from '../apps/user/models';
+import User, { IUserModel } from '../apps/user/user.models';
 
 export interface TokenInterface {
   email: string;

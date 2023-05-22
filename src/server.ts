@@ -70,7 +70,7 @@ function StartServer () {
   router.use('/auth', AuthRoutes);
   router.use('/user', UserRoutes);
   router.use('/game', GameRoutes);
-  router.use('/game_request', GameRequestRoutes);
+  router.use('/game-request', GameRequestRoutes);
 
   // HealthCheck
   router.get('/ping', (req, res, next) => res.status(200).json({ message: 'eneri online' }));

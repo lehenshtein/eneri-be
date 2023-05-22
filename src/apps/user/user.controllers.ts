@@ -1,6 +1,6 @@
 import { AuthRequest } from '../../middleware/Authentication';
 import { NextFunction, Request, Response } from 'express';
-import User, { IUser, IUserAsMaster, IUserModel } from './models';
+import User, { IUser, IUserAsMaster, IUserModel } from './user.models';
 import Crypto from 'crypto';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 
