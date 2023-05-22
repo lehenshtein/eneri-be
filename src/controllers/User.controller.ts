@@ -57,7 +57,7 @@ const editUser = async(req: AuthRequest, res: Response, next: NextFunction) => {
     req.body.showContacts = false;
   }
 
-  if (req.body.avatar && !isImageUploaded(req.body.avatar)) {
+  if (!req.body.avatar || !isImageUploaded(req.body.avatar)) {
     const uploadResult = await uploadFile(req.files as fileType, req.body.avatar);
     if (uploadResult.result) {
       req.body.avatar = uploadResult.imgUrl;
