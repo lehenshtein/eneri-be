@@ -39,12 +39,14 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     bookedAmount: booked.length
   });
 
-  if (!game.imgUrl || !isImageUploaded(game.imgUrl)) {
-    const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
-    if (uploadResult.result) {
-      game.imgUrl = uploadResult.imgUrl as string;
-    } else {
-      return res.status(400).json({ message: uploadResult.message });
+  if (game.imgUrl || req.files) {
+    if (!isImageUploaded(game.imgUrl)) {
+      const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
+      if (uploadResult.result) {
+        game.imgUrl = uploadResult.imgUrl as string;
+      } else {
+        return res.status(400).json({ message: uploadResult.message });
+      }
     }
   }
 
@@ -83,12 +85,14 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
         req.body.bookedAmount = req.body.booked.length;
         game.set(req.body);
 
-        if (!game.imgUrl || !isImageUploaded(game.imgUrl)) {
-          const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
-          if (uploadResult.result) {
-            game.imgUrl = uploadResult.imgUrl as string;
-          } else {
-            return res.status(400).json({ message: uploadResult.message });
+        if (game.imgUrl || req.files?.length) {
+          if (!game.imgUrl || !isImageUploaded(game.imgUrl)) {
+            const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
+            if (uploadResult.result) {
+              game.imgUrl = uploadResult.imgUrl as string;
+            } else {
+              return res.status(400).json({ message: uploadResult.message });
+            }
           }
         }
 
