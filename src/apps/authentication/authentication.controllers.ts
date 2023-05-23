@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import User, { IUserModel } from '../user/models';
+import User, { IUserModel } from '../user/user.models';
 import jwt from 'jsonwebtoken';
 import Crypto from 'crypto';
 import { AuthRequest } from "../../middleware/Authentication";

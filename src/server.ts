@@ -52,6 +52,7 @@ function StartServer () {
     if (allowedOrigins.includes(origin!)) {
       res.setHeader('Access-Control-Allow-Origin', origin!);
     }
+    res.setHeader('x-req-from', 'imagekit');
 
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Expose-Headers', 'X-Page, X-Limit, X-Total');
@@ -70,7 +71,7 @@ function StartServer () {
   router.use('/auth', AuthRoutes);
   router.use('/user', UserRoutes);
   router.use('/game', GameRoutes);
-  router.use('/game_request', GameRequestRoutes);
+  router.use('/game-request', GameRequestRoutes);
 
   // HealthCheck
   router.get('/ping', (req, res, next) => res.status(200).json({ message: 'eneri online' }));

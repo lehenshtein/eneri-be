@@ -1,6 +1,6 @@
-import AuthRoutes from './apps/authentication/router';
-import UserRoutes from './apps/user/router';
-import GameRoutes from './apps/game/router';
-import GameRequestRoutes from './apps/game_request/router';
+import AuthRoutes from './apps/authentication/authentication.router';
+import UserRoutes from './apps/user/user.router';
+import GameRoutes from './apps/game/game.router';
+import GameRequestRoutes from './apps/game-request/game-request.router';
 
 export { AuthRoutes, UserRoutes, GameRoutes, GameRequestRoutes };

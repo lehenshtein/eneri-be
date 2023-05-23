@@ -1,8 +1,8 @@
 import { Express, NextFunction, Response, text } from 'express';
 import mongoose from 'mongoose';
-import User, { IUser, IUserModel } from '../user/models';
+import User, { IUser, IUserModel } from '../user/user.models';
 import { AuthRequest } from '../../middleware/Authentication';
-import Game, { IGameModel } from './models';
+import Game, { IGameModel } from './game.models';
 import { sortEnum } from '../../models/gameSort.enum';
 import { IGameFilters } from '../../models/gameFilters.interface';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
