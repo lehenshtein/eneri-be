@@ -24,7 +24,7 @@ const GameValidator = Joi.object({
   description: Joi.string().min(10).max(2000),
   organizedPlay: Joi.boolean(),
   tags: Joi.array().items(Joi.string()),
-  imgUrl: Joi.string().empty(null).regex(imgRegex).max(240),
+  imgUrl: Joi.string().empty(null).max(240),
   price: Joi.number().min(0),
   cityCode: Joi.number().required(),
   byInvite: Joi.boolean().default(false),

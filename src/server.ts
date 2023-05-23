@@ -52,6 +52,7 @@ function StartServer () {
     if (allowedOrigins.includes(origin!)) {
       res.setHeader('Access-Control-Allow-Origin', origin!);
     }
+    res.setHeader('x-req-from', 'imagekit');
 
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Expose-Headers', 'X-Page, X-Limit, X-Total');
