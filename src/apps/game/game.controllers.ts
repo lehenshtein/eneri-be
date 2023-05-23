@@ -39,8 +39,8 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     bookedAmount: booked.length
   });
 
-  if (game.imgUrl || req.files) {
-    if (!isImageUploaded(game.imgUrl)) {
+  if (game.imgUrl || req.files?.length) {
+    if (!game.imgUrl || !isImageUploaded(game.imgUrl)) {
       const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
       if (uploadResult.result) {
         game.imgUrl = uploadResult.imgUrl as string;
