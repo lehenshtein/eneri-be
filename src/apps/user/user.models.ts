@@ -1,4 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { gameRoles } from '../../models/gameRoles.type';
+import { roles } from '../../models/roles.type';
 
 export interface IUser {
   name: string,
@@ -8,8 +10,8 @@ export interface IUser {
   salt: string,
   about: string,
   birthDate: Date,
-  role: 'superAdmin' | 'admin' | 'moderator' | 'user',
-  gameRole: 'player' | 'both',
+  role: roles,
+  gameRole: gameRoles,
   gamesLeaded: number,
   gamesPlayed: number,
   rate: number,
@@ -33,10 +35,20 @@ interface IContactData {
 export interface IUserAsMaster {
   name: string,
   username: string,
+  gameRole: gameRoles,
   about: string,
   gamesLeaded: number,
   gamesPlayed: number,
   telegram: string | undefined,
+  avatar: string,
+  createdAt: Date,
+}
+export interface IUserAsPlayer {
+  name: string,
+  username: string,
+  gameRole: gameRoles,
+  about: string,
+  gamesPlayed: number,
   avatar: string,
   createdAt: Date,
 }

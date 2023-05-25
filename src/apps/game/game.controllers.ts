@@ -137,7 +137,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
   else {
     try {
       const game: IGameModel | null = await Game.findById(gameId)
-        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id verified' }])// form ref author we get author obj and can get his name
+        .populate([{path: 'master', select: 'username avatar name rate -_id' }, {path: 'players', select: 'username -_id verified' }])// form ref author we get author obj and can get his name
         .select('-booked -__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
@@ -164,7 +164,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
     let games: IGameModel[] = await sortGames(+sort, filters, true)
       .limit(+limit)
       .skip((+page) * +limit)
-      .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
+      .populate([{path: 'master', select: 'username name rate avatar -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
     let total = await sortGames(+sort, filters, false).count(); //make true for future games only
 
