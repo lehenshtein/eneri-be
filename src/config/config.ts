@@ -11,11 +11,18 @@ const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || '';
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
-const frontProdUrl = 'http://eneri.com.ua/';
-const frontStageUrl = 'http://memologist.herokuapp.com/';
+const frontProdUrl = 'https://eneri.com.ua/';
+const frontStageUrl = 'https://eneri.com.ua/';
 const frontLocalUrl = 'http://localhost:4200/';
 
 const frontUrl = NODE_ENV === 'local' ? frontLocalUrl : NODE_ENV === 'dev' ? frontStageUrl : frontProdUrl;
+
+const supportedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+const maxImageSize = 1024 * 1024 * 3; // 3 MB
+const imgResizeWidth = 420; // width of pictures which will be returned to FE
+
+const ImagekitID = process.env.IMAGEKIT_ID || '';
+const ImagekitUrl = `https://ik.imagekit.io/${ImagekitID}`;
 
 export const config = {
   mongo: {
@@ -30,4 +37,9 @@ export const config = {
     password: EMAIL_PASSWORD
   },
   frontUrl: frontUrl,
+  supportedImageTypes: supportedImageTypes,
+  maxImageSize: maxImageSize,
+  ImagekitID: ImagekitID,
+  ImagekitUrl: ImagekitUrl,
+  imgResizeWidth: imgResizeWidth,
 };

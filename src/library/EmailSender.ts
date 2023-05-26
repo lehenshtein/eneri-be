@@ -15,7 +15,7 @@ export default class EmailSender {
   }
 
   transporter = nodemailer.createTransport({
-    host: 'smtp.email.ua',
+    host: 'smtp.ukr.net',
     port: 465,
     secure: true,
     requireTLS: true,
@@ -29,7 +29,7 @@ export default class EmailSender {
 
   mailOptions () {
     return {
-      from: 'eneri@email.ua',
+      from: config.email.login,
       to: this.receiver,
       subject: this.email.subject,
       html: this.email.text
@@ -50,18 +50,23 @@ export default class EmailSender {
 
 export async function sendVerificationEmail (receiver: string, verificationKey: string) {
   const emailData = {
-    subject: 'Мемолог | Верифікація пошти. Memologist | Email verification.',
+    subject: 'ЕНЕРІ | Верифікація пошти.',
     text:
-          `<p>Будь-ласка, підтвердь свою пошту, натиснувши на посилання знизу.</p>
-          <p>Або вставте цей код у поле верифікації: ${verificationKey}.</p>
-          <p>Please, confirm your email, by clicking on the link below.</p>
-          <p>Or paste this code to verification input: ${verificationKey}.</p>
-          <p><a href='${config.frontUrl}auth/verification/${verificationKey}'>
-            ${config.frontUrl}auth/verification/${verificationKey}
+          `<p><b><a href="https://eneri.com.ua">ЕНЕРІ</a> - настільні рольові ігри в Україні.</b></p>
+          <p>Будь-ласка, підтвердь свою пошту, натиснувши на посилання знизу.</p>
+          <p>Або скопіюйте посилання у браузер.</p>
+          <br>
+          <p>Ви маєте бути авторизовані на ЕНЕРІ на пристрої з якого підтверджуєте пошту!</p>
+          <p><a href='${config.frontUrl}verification/${verificationKey}'>
+            ${config.frontUrl}verification/${verificationKey}
           </a></p>
+          <br>
+          <p>Або вставте цей код: <i>${verificationKey}</i> у поле верифікації за адресою нижче.</p>
+          <p><a href='${config.frontUrl}verification'>
+              ${config.frontUrl}verification
+            </a></p>
           <p></p>
-          <p><b>Мемолог - український розважальний портал.</b></p>
-          <a href="https://memologist.com.ua">memologist.com.ua</a>`
+          <a href="https://eneri.com.ua">eneri.com.ua</a>`
   };
   const sender = new EmailSender(receiver, emailData);
   try {

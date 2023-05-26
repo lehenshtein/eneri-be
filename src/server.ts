@@ -4,7 +4,7 @@ import { config } from './config/config';
 import Logger from './library/logger';
 import http from 'http';
 import { addUserToRequest } from './middleware/Authentication';
-import { AuthRoutes, GameRoutes, UserRoutes } from './routes/routes';
+import { AuthRoutes, GameRoutes, UserRoutes, GameRequestRoutes } from './routes';
 import { startCronJobs } from "./cron/CronIndex";
 
 const router = express();
@@ -44,7 +44,7 @@ function StartServer () {
 
   // Rules of API
   router.use((req, res, next) => {
-    let allowedOrigins = ['http://localhost:4200', 'http://localhost:8080'];
+    let allowedOrigins = ['http://localhost:4200', 'http://localhost:5000','http://localhost:8080'];
     if (config.env === 'prod') {
       allowedOrigins = ['https://eneri.com.ua', 'https://eneri-ebb46.web.app'];
     }
@@ -52,6 +52,7 @@ function StartServer () {
     if (allowedOrigins.includes(origin!)) {
       res.setHeader('Access-Control-Allow-Origin', origin!);
     }
+    res.setHeader('x-req-from', 'imagekit');
 
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Expose-Headers', 'X-Page, X-Limit, X-Total');
@@ -70,6 +71,7 @@ function StartServer () {
   router.use('/auth', AuthRoutes);
   router.use('/user', UserRoutes);
   router.use('/game', GameRoutes);
+  router.use('/game-request', GameRequestRoutes);
 
   // HealthCheck
   router.get('/ping', (req, res, next) => res.status(200).json({ message: 'eneri online' }));

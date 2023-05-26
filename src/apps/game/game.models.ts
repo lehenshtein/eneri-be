@@ -1,13 +1,14 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IUserModel } from './User.model';
-import { IGameSystem } from './GameSystem.interface';
-import { ICity } from './City.interface';
+import { IUserModel } from '../user/user.models';
+import { IGameSystem } from '../../models/GameSystem.interface';
+import { ICity } from '../../models/City.interface';
 
 export interface IGame {
   master: Partial<IUserModel>;
   gameSystemId: IGameSystem['_id'];
   title: string;
   description: string;
+  organizedPlay: boolean;
   imgUrl: string;
   tags: string[];
   cityCode: ICity['code'];
@@ -28,13 +29,14 @@ const GameSchema: Schema = new Schema({
   gameSystemId: { type: Number, required: true },
   title: { type: String, required: true },
   description: { type: String, required: false },
+  organizedPlay: { type: Boolean, required: false, default: false },
   tags: { type: [String], required: false },
   imgUrl: { type: String, required: false },
   price: { type: Number, required: true },
   cityCode: { type: Number, required: true },
   byInvite: { type: Boolean, default: false },
   isSuspended: { type: Boolean, default: false },
-  startDateTime: { type: Date, required: true,  default: new Date().getTime() },
+  startDateTime: { type: Date, required: false },
   players: { type: [Schema.Types.ObjectId], required: false, default: [], ref: 'User' },
   maxPlayers: { type: Number, required: true, default: 1 },
   booked: { type: [String], required: false, default: [] },
