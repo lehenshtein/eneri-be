@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IUserModel } from './User.model';
-import { IGameSystem } from './GameSystem.interface';
-import { ICity } from './City.interface';
+import { IUserModel } from '../user/user.models';
+import { IGameSystem } from '../../models/GameSystem.interface';
+import { ICity } from '../../models/City.interface';
 
 export interface IGame {
   master: Partial<IUserModel>;
@@ -36,7 +36,7 @@ const GameSchema: Schema = new Schema({
   cityCode: { type: Number, required: true },
   byInvite: { type: Boolean, default: false },
   isSuspended: { type: Boolean, default: false },
-  startDateTime: { type: Date, required: true,  default: new Date().getTime() },
+  startDateTime: { type: Date, required: false },
   players: { type: [Schema.Types.ObjectId], required: false, default: [], ref: 'User' },
   maxPlayers: { type: Number, required: true, default: 1 },
   booked: { type: [String], required: false, default: [] },

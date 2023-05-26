@@ -1,7 +1,9 @@
-import { AuthRequest } from '../middleware/Authentication';
+import { AuthRequest } from '../../middleware/Authentication';
 import { NextFunction, Request, Response } from 'express';
-import User, { IUser, IUserAsMaster, IUserModel } from '../models/User.model';
+import User, { IUser, IUserAsMaster, IUserAsPlayer, IUserModel } from './user.models';
 import Crypto from 'crypto';
+import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
+import { userAsMasterDto, userAsPlayerDto } from './user.dto';
 
 const getUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
@@ -27,21 +29,15 @@ const getUserByUsername = async (req: Request, res: Response, next: NextFunction
     if (!user) {
       return res.status(404).json({ message: 'not found' });
     }
+
+    let userToReturn: IUserAsMaster | IUserAsPlayer;
     if (user.gameRole === 'player') {
-      return res.status(404).json({ message: 'Такого майстре не знайдено, можливо це гравець' });
+      userToReturn = userAsPlayerDto(user);
+    } else {
+      userToReturn = userAsMasterDto(user);
     }
 
-    let userAsMaster: IUserAsMaster = {
-      username: user.username,
-      name: user.name,
-      about: user.about,
-      gamesLeaded: user.gamesLeaded,
-      gamesPlayed: user.gamesPlayed,
-      telegram: user.showContacts ? user.contactData.telegram : '',
-      avatar: user.avatar,
-      createdAt: user.createdAt,
-    }
-    return res.status(200).json(userAsMaster);
+    return res.status(200).json(userToReturn);
   } catch (err) {
     return res.status(500).json({ message: 'Server error', err });
   }
@@ -52,8 +48,18 @@ const editUser = async(req: AuthRequest, res: Response, next: NextFunction) => {
     return res.status(401).json({ message: 'Not authenticated' });
   }
   if (req.user.gameRole === 'player') {
-    req.body.about = '';
     req.body.showContacts = false;
+  }
+
+  if (req.body.avatar || req.files?.length){
+    if (!req.body.avatar || !isImageUploaded(req.body.avatar)) {
+      const uploadResult = await uploadFile(req.files as fileType, req.body.avatar);
+      if (uploadResult.result) {
+        req.body.avatar = uploadResult.imgUrl;
+      } else {
+        return res.status(400).json({ message: uploadResult.message });
+      }
+    }
   }
 
   try {
@@ -89,6 +95,22 @@ const getUserForAdmin = async (req: AuthRequest, res: Response, next: NextFuncti
     }
 
     return res.status(200).json(user);
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', err });
+  }
+};
+
+const getStats = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  //:TODO create middleware for roles, controller for admin requests
+  if (req.user?.role !== 'superAdmin' && req.user?.role !== 'admin' && req.user?.role !== 'moderator') {
+    return res.status(403).json({ message: 'You have no permissions' });
+  }
+
+  try {
+    let totalUsers = await User.find().count();
+    let totalMasters = await User.find({gameRole: 'both'}).count()
+
+    return res.status(200).json({totalUsers, totalMasters});
   } catch (err) {
     return res.status(500).json({ message: 'Server error', err });
   }
@@ -141,4 +163,4 @@ const changeEmailVerification = async (req: AuthRequest, res: Response, next: Ne
   }
 }
 
-export default { getUser, getUserByUsername, editUser, getUserForAdmin, changeGameRole, changeEmailVerification };
+export default { getUser, getUserByUsername, editUser, getUserForAdmin, changeGameRole, changeEmailVerification, getStats };

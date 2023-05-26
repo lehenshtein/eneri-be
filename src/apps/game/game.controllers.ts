@@ -1,10 +1,11 @@
 import { Express, NextFunction, Response, text } from 'express';
 import mongoose from 'mongoose';
-import User, { IUser, IUserModel } from '../models/User.model';
-import { AuthRequest } from '../middleware/Authentication';
-import Game, { IGameModel } from '../models/Game.model';
-import { sortEnum } from '../models/gameSort.enum';
-import { IGameFilters } from '../models/gameFilters.interface';
+import User, { IUser, IUserModel } from '../user/user.models';
+import { AuthRequest } from '../../middleware/Authentication';
+import Game, { IGameModel } from './game.models';
+import { sortEnum } from '../../models/gameSort.enum';
+import { IGameFilters } from '../../models/gameFilters.interface';
+import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -37,6 +38,18 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     booked,
     bookedAmount: booked.length
   });
+
+  if (game.imgUrl || req.files?.length) {
+    if (!game.imgUrl || !isImageUploaded(game.imgUrl)) {
+      const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
+      if (uploadResult.result) {
+        game.imgUrl = uploadResult.imgUrl as string;
+      } else {
+        return res.status(400).json({ message: uploadResult.message });
+      }
+    }
+  }
+
   const responseGame = {
     _id: game._id,
     master: {username: req.user?.username},
@@ -71,6 +84,17 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
 
         req.body.bookedAmount = req.body.booked.length;
         game.set(req.body);
+
+        if (game.imgUrl || req.files?.length) {
+          if (!game.imgUrl || !isImageUploaded(game.imgUrl)) {
+            const uploadResult = await uploadFile(req.files as fileType, game.imgUrl);
+            if (uploadResult.result) {
+              game.imgUrl = uploadResult.imgUrl as string;
+            } else {
+              return res.status(400).json({ message: uploadResult.message });
+            }
+          }
+        }
 
         // reopen games if start date was updated
         if (game.startDateTime >= new Date()) {
@@ -113,7 +137,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
   else {
     try {
       const game: IGameModel | null = await Game.findById(gameId)
-        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id verified' }])// form ref author we get author obj and can get his name
+        .populate([{path: 'master', select: 'username avatar name rate -_id' }, {path: 'players', select: 'username -_id verified' }])// form ref author we get author obj and can get his name
         .select('-booked -__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
@@ -140,7 +164,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
     let games: IGameModel[] = await sortGames(+sort, filters, true)
       .limit(+limit)
       .skip((+page) * +limit)
-      .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
+      .populate([{path: 'master', select: 'username name rate avatar -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
     let total = await sortGames(+sort, filters, false).count(); //make true for future games only
 
