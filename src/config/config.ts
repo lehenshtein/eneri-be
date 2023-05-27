@@ -23,8 +23,12 @@ const imgResizeWidth = 420; // width of pictures which will be returned to FE
 
 const ImagekitID = process.env.IMAGEKIT_ID || '';
 const ImagekitUrl = `https://ik.imagekit.io/${ImagekitID}`;
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '';
 
 export const config = {
+  telegram: {
+    token: TELEGRAM_TOKEN
+  },
   mongo: {
     url: MONGO_URL
   },
