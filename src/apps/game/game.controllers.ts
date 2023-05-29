@@ -99,6 +99,7 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
         // reopen games if start date was updated
         if (game.startDateTime >= new Date()) {
           game.isSuspended = false;
+          game.suspendedDateTime = undefined;
         }
 
         return game.save()
@@ -217,6 +218,7 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
 
     if (game.players.length === (game.maxPlayers - 1)) {
       game.isSuspended = true;
+      game.suspendedDateTime = new Date();
     }
     game.players.push(player);
     await game.save();
@@ -374,6 +376,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   // to show only future game, uncomment this and comment 2 upper rows
   return Game.find(query)
     .sort('isSuspended')
+    .sort('-suspendedDateTime')
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
 
