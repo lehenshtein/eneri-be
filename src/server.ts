@@ -6,6 +6,8 @@ import http from 'http';
 import { addUserToRequest } from './middleware/Authentication';
 import { AuthRoutes, GameRoutes, UserRoutes, GameRequestRoutes } from './routes';
 import { startCronJobs } from "./cron/CronIndex";
+import TelegramBot from 'node-telegram-bot-api';
+import { StartBot } from './apps/telegram-bot/start-bot';
 
 const router = express();
 // Connect to mongo
@@ -13,6 +15,7 @@ mongoose.connect(config.mongo.url, { retryWrites: true, w: 'majority' })
   .then(() => {
     Logger.log('connected to db');
     StartServer();
+    StartBot();
   })
   .catch((err) => {
     Logger.err('Unable to connect');

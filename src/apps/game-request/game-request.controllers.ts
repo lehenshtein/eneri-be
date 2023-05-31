@@ -17,7 +17,7 @@ const createGameRequest = async (req: AuthRequest, res: Response, next: NextFunc
   }
 
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You don\'t have telegram nickname in your profile' });
+    return res.status(403).json({ message: 'You don\'t have telegram-bot nickname in your profile' });
   }
 
   const gameRequest = new GameRequest({
