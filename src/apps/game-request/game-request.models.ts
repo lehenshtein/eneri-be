@@ -15,6 +15,7 @@ export interface IGameRequest {
   price: number;
   cityCode: ICity['code'];
   isSuspended: boolean;
+  suspendedDateTime: Date | undefined;
   startDateTime: Date;
   players: Partial<IUserModel>[];
   maxPlayers: number;
@@ -36,6 +37,7 @@ const GameRequestSchema: Schema = new Schema({
   price: { type: Number, required: true },
   cityCode: { type: Number, required: true },
   isSuspended: { type: Boolean, default: false },
+  suspendedDateTime: { type: Date, required: false },
   startDateTime: { type: Date, required: true,  default: new Date().getTime() },
   players: { type: [Schema.Types.ObjectId], required: true, default: [], ref: 'User' },
   maxPlayers: { type: Number, required: true, default: 1 },

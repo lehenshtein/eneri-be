@@ -3,12 +3,12 @@ import Game from '../apps/game/game.models';
 export async function closeCompletedGames () {
   const hoursToClose = 1;
   const d = new Date();
-  d.setTime(d.getTime() - hoursToClose * 60 * 60 * 1000);
+  d.setTime(d.getTime() + hoursToClose * 60 * 60 * 1000);
   console.log('Closing games which started before ' + d.toString());
   try {
     const result = await Game.updateMany(
         {'startDateTime': {'$lte': d}, 'isSuspended': false},
-        {'$set': {'isSuspended': true}},
+        {'$set': {'isSuspended': true, 'suspendedDateTime': new Date()}},
     );
     console.log(result);
   } catch (err) {
