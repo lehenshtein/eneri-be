@@ -99,6 +99,7 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
         // reopen games if start date was updated
         if (game.startDateTime >= new Date()) {
           game.isSuspended = false;
+          game.suspendedDateTime = undefined;
         }
 
         return game.save()
@@ -166,7 +167,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
       .skip((+page) * +limit)
       .populate([{path: 'master', select: 'username name rate avatar -_id' }, {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
-    let total = await sortGames(+sort, filters, false).count(); //make true for future games only
+    let total = await sortGames(+sort, filters, true).count(); //make true for future games only
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
@@ -217,6 +218,7 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
 
     if (game.players.length === (game.maxPlayers - 1)) {
       game.isSuspended = true;
+      game.suspendedDateTime = new Date();
     }
     game.players.push(player);
     await game.save();
@@ -363,7 +365,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   }
 
 
-  const lastDaysToTakeGames = 30;
+  const lastDaysToTakeGames = 90;
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
   if (onlyFutureGames) {
@@ -374,6 +376,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   // to show only future game, uncomment this and comment 2 upper rows
   return Game.find(query)
     .sort('isSuspended')
+    .sort('-suspendedDateTime')
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
 

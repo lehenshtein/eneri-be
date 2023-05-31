@@ -8,7 +8,7 @@ export async function closeCompletedGames () {
   try {
     const result = await Game.updateMany(
         {'startDateTime': {'$lte': d}, 'isSuspended': false},
-        {'$set': {'isSuspended': true}},
+        {'$set': {'isSuspended': true, 'suspendedDateTime': new Date()}},
     );
     console.log(result);
   } catch (err) {

@@ -98,6 +98,7 @@ const updateGameRequest = async (req: AuthRequest, res: Response, next: NextFunc
         // reopen games if start date was updated
         if (gameRequest.startDateTime >= new Date()) {
           gameRequest.isSuspended = false;
+          gameRequest.suspendedDateTime = undefined;
         }
 
         return gameRequest.save()
@@ -228,6 +229,7 @@ function sortGameRequests (sort: number, filters: IGameFilters, onlyFutureGames:
   // to show only future game, uncomment this and comment 2 upper rows
   return GameRequest.find(query)
     .sort('isSuspended')
+    .sort('-suspendedDateTime')
     .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
 }
 
