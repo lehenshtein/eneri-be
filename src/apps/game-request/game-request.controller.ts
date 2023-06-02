@@ -269,4 +269,48 @@ const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunct
   }
 }
 
-export default { createGameRequest, readGameRequest, readAll, updateGameRequest, applyGameRequest };
+const removePlayerFromGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { gameId } = req.params;
+  const { username } = req.params;
+  const user: IUserModel | null | undefined = req.user;
+  if (!user) {
+    return;
+  }
+
+  try {
+    const game: IGameRequestModel | null = await GameRequest.findById(gameId)
+      .populate([{path: 'creator', select: '_id username' }, {path: 'players', select: 'username _id name contactData' }])
+      .select('-__v');
+
+    if (!game) {
+      return res.status(404).json({ message: 'not found' });
+    }
+    if (!game?.creator._id.equals(user?._id)) {
+      return res.status(401).json({ message: 'You have no permissions' });
+    }
+    if (game?.creator.username === username) {
+      return res.status(403).json({ message: 'You cannot remove creator' });
+    }
+
+
+    const playerIndex = game?.players.findIndex(player => player.username === username);
+
+    if (playerIndex !== -1) {
+      const newPlayers = [...game?.players];
+      newPlayers.splice(playerIndex, 1);
+      game.players = [...newPlayers];
+    }
+
+    if (game.players.length < game.maxPlayers) {
+      game.isSuspended = false;
+    }
+
+    await game.save();
+
+    return res.status(200).json({message: 'success'});
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', err });
+  }
+}
+
+export default { createGameRequest, readGameRequest, readAll, updateGameRequest, applyGameRequest, removePlayerFromGameRequest };

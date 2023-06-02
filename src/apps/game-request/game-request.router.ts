@@ -26,5 +26,6 @@ gameRequestRouter.put('/:gameId', [
   multipartConvert,
   ValidateSchema(Schema.gameRequest.update)
 ], controller.updateGameRequest);
+gameRequestRouter.patch('/:gameId/:username', [requireAuthentication as express.RequestHandler], controller.removePlayerFromGameRequest);
 
 export = gameRequestRouter;
