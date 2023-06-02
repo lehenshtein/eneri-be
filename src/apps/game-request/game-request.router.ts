@@ -1,5 +1,5 @@
 import express from 'express';
-import controller from './game-request.controllers';
+import controller from './game-request.controller';
 import { Schema, ValidateSchema } from '../../middleware/ValidateSchema';
 import { requireAuthentication, requireNotToBeBanned } from '../../middleware/Authentication';
 import { multipartConvert } from "../../middleware/MultipartConvert";
@@ -14,6 +14,10 @@ gameRequestRouter.post('', [
   multipartConvert,
   ValidateSchema(Schema.gameRequest.create)
 ], controller.createGameRequest);
+gameRequestRouter.get('/apply/:gameId', [
+  requireAuthentication as express.RequestHandler,
+  requireNotToBeBanned
+], controller.applyGameRequest);
 gameRequestRouter.get('/:gameId', controller.readGameRequest);
 gameRequestRouter.get('', controller.readAll);
 gameRequestRouter.put('/:gameId', [

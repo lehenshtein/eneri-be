@@ -4,9 +4,8 @@ import { config } from './config/config';
 import Logger from './library/logger';
 import http from 'http';
 import { addUserToRequest } from './middleware/Authentication';
-import { AuthRoutes, GameRoutes, UserRoutes, GameRequestRoutes } from './routes';
+import { AuthRoutes, GameRoutes, UserRoutes, GameRequestRoutes, AdminRoutes } from './routes';
 import { startCronJobs } from "./cron/CronIndex";
-import TelegramBot from 'node-telegram-bot-api';
 import { StartBot } from './apps/telegram-bot/start-bot';
 
 const router = express();
@@ -15,7 +14,9 @@ mongoose.connect(config.mongo.url, { retryWrites: true, w: 'majority' })
   .then(() => {
     Logger.log('connected to db');
     StartServer();
-    StartBot();
+    if (config.env !== 'local') {
+      StartBot();
+    }
   })
   .catch((err) => {
     Logger.err('Unable to connect');
@@ -75,6 +76,7 @@ function StartServer () {
   router.use('/user', UserRoutes);
   router.use('/game', GameRoutes);
   router.use('/game-request', GameRequestRoutes);
+  router.use('/admin', AdminRoutes);
 
   // HealthCheck
   router.get('/ping', (req, res, next) => res.status(200).json({ message: 'eneri online' }));
