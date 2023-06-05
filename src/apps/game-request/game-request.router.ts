@@ -18,6 +18,10 @@ gameRequestRouter.get('/apply/:gameId', [
   requireAuthentication as express.RequestHandler,
   requireNotToBeBanned
 ], controller.applyGameRequest);
+gameRequestRouter.get('/apply-as-master/:gameId', [
+  requireAuthentication as express.RequestHandler,
+  requireNotToBeBanned
+], controller.applyGameRequestAsMaster);
 gameRequestRouter.get('/:gameId', controller.readGameRequest);
 gameRequestRouter.get('', controller.readAll);
 gameRequestRouter.put('/:gameId', [

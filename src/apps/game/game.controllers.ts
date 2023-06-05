@@ -19,7 +19,7 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     return res.status(403).json({ message: 'You have no Master permissions' });
   }
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You don\'t have telegram-bot nickname in your profile' });
+    return res.status(403).json({ message: 'You don\'t have telegram nickname in your profile' });
   }
 
   const game = new Game({
@@ -185,7 +185,7 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
     return;
   }
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You need to have telegram-bot nickname in your profile' });
+    return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
   }
 
   try {

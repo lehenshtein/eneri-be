@@ -19,7 +19,7 @@ const createGameRequest = async (req: AuthRequest, res: Response, next: NextFunc
   }
 
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You don\'t have telegram-bot nickname in your profile' });
+    return res.status(403).json({ message: 'You don\'t have telegram nickname in your profile' });
   }
 
   const gameRequest = new GameRequest({
@@ -57,9 +57,9 @@ const createGameRequest = async (req: AuthRequest, res: Response, next: NextFunc
 
 
 const updateGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { gameRequestId } = req.params;
+  const { gameId } = req.params;
 
-  return GameRequest.findById(gameRequestId)
+  return GameRequest.findById(gameId)
     .then(async gameRequest => {
       if (gameRequest) {
         if (!gameRequest.creator._id.equals(req.user?._id)) {
@@ -225,7 +225,7 @@ const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunct
     return;
   }
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You need to have telegram-bot nickname in your profile' });
+    return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
   }
 
   try {
@@ -261,6 +261,45 @@ const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunct
       game.suspendedDateTime = new Date();
     }
     game.players.push(player);
+    await game.save();
+
+    return res.status(200).json({message: 'success'});
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', err });
+  }
+}
+const applyGameRequestAsMaster = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { gameId } = req.params;
+  const user: IUser | null | undefined = req.user;
+  if (!user) {
+    return;
+  }
+  if (!req.user?.contactData.telegram) {
+    return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
+  }
+
+  try {
+    const game: IGameRequestModel | null = await GameRequest.findById(gameId)
+      .populate([ {path: 'master', select: '-_id name username'}, {path: 'creator', select: '_id username' }])
+      .select('-__v');
+    if (!game) {
+      return res.status(404).json({ message: 'not found' });
+    }
+    if (game.creator?.username === user.username) {
+      return res.status(405).json({ message: 'You are creator of this game' });
+    }
+    if (game.master?.username === user.username) {
+      return res.status(405).json({ message: 'You are master of this game' });
+    }
+    if (game.players.find(player => player._id.equals(req.user!._id))) {
+      return res.status(405).json({ message: 'You are already applied as a player' });
+    }
+
+    if (game.players.length === (game.maxPlayers)) {
+      game.isSuspended = true;
+      game.suspendedDateTime = new Date();
+    }
+    game.master = user;
     await game.save();
 
     return res.status(200).json({message: 'success'});
@@ -313,4 +352,4 @@ const removePlayerFromGameRequest = async (req: AuthRequest, res: Response, next
   }
 }
 
-export default { createGameRequest, readGameRequest, readAll, updateGameRequest, applyGameRequest, removePlayerFromGameRequest };
+export default { createGameRequest, readGameRequest, readAll, updateGameRequest, applyGameRequest, removePlayerFromGameRequest, applyGameRequestAsMaster };
