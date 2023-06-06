@@ -8,6 +8,7 @@ import { IGameFilters } from '../../models/gameFilters.interface';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 import { gameRequestResponseDto } from './game-request.dto';
 import Game, { IGameModel } from '../game/game.models';
+import { sortGameRequests } from "./game-request.lib";
 
 
 const createGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -171,53 +172,6 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
 };
 
 
-function sortGameRequests (sort: number, filters: IGameFilters, onlyFutureGames: boolean = false) {
-  let dateFilter = {};
-  let searchField = {};
-  let isShowSuspended = {};
-  let gameSystemId = {};
-  let cityCode = {};
-  let creator = {};
-  let master = {};
-  let player = {};
-  if (filters.search) {
-    searchField = { $text: { $search: filters.search } };
-  }
-  if (!filters.isShowSuspended) {
-    isShowSuspended = {isSuspended: false}
-  }
-  if ((filters.gameSystemId && !isNaN(filters.gameSystemId)) || filters.gameSystemId === 0) {
-    gameSystemId = {gameSystemId: filters.gameSystemId}
-  }
-  if ((filters.cityCode && !isNaN(filters.cityCode)) || filters.cityCode === 0) {
-    cityCode = {cityCode: filters.cityCode}
-  }
-  if (filters.creator) {
-    creator = { creator: filters.creator }
-  }
-  if (filters.master) {
-    master = { master: filters.master }
-  }
-  if (filters.player) {
-    player = { players: filters.player }
-  }
-
-
-  const lastDaysToTakeGames = 90;
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
-  if (onlyFutureGames) {
-    dateFilter = { startDateTime: { $gt: d }}
-  }
-  const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...creator, ...master, ...player };
-  // const query = { createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
-  // to show only future game, uncomment this and comment 2 upper rows
-  return GameRequest.find(query)
-    .sort('isSuspended')
-    .sort('-suspendedDateTime')
-    .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
-}
-
 const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
   const player: IUser | null | undefined = req.user;
@@ -268,6 +222,8 @@ const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunct
     return res.status(500).json({ message: 'Server error', err });
   }
 }
+
+
 const applyGameRequestAsMaster = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
   const user: IUser | null | undefined = req.user;
@@ -307,6 +263,7 @@ const applyGameRequestAsMaster = async (req: AuthRequest, res: Response, next: N
     return res.status(500).json({ message: 'Server error', err });
   }
 }
+
 
 const removePlayerFromGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
