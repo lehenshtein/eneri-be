@@ -88,6 +88,7 @@ async function combineGamesAndRequests(sort: number, page: number, limit: number
         addGame = true;
       } else if (sort && nextGame.createdAt > nextRequest.createdAt) {
         addGame = true;
+
       }
     }
 
