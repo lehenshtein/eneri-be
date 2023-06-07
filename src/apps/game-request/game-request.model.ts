@@ -4,7 +4,7 @@ import { IGameSystem } from '../../models/GameSystem.interface';
 import { ICity } from '../../models/City.interface';
 
 export interface IGameRequest {
-  master: Partial<IUserModel>;
+  master: Partial<IUserModel> | undefined;
   creator: Partial<IUserModel>;
   gameSystemId: IGameSystem['_id'];
   title: string;

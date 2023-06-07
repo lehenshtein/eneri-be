@@ -30,6 +30,7 @@ gameRequestRouter.put('/:gameId', [
   multipartConvert,
   ValidateSchema(Schema.gameRequest.update)
 ], controller.updateGameRequest);
+gameRequestRouter.patch('/remove-master/:gameId', [requireAuthentication as express.RequestHandler], controller.removeMasterFromGameRequest);
 gameRequestRouter.patch('/:gameId/:username', [requireAuthentication as express.RequestHandler], controller.removePlayerFromGameRequest);
 
 export = gameRequestRouter;

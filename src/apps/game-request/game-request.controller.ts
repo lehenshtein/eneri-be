@@ -1,13 +1,11 @@
 import { Express, NextFunction, Response, text } from 'express';
 import mongoose from 'mongoose';
-import User, { IUser, IUserModel } from '../user/user.models';
+import { IUser, IUserModel } from '../user/user.models';
 import { AuthRequest } from '../../middleware/Authentication';
 import GameRequest, { IGameRequestModel } from './game-request.model';
 import { sortEnum } from '../../models/gameSort.enum';
-import { IGameFilters } from '../../models/gameFilters.interface';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 import { gameRequestResponseDto } from './game-request.dto';
-import Game, { IGameModel } from '../game/game.models';
 import { sortGameRequests } from "./game-request.lib";
 
 
@@ -106,8 +104,8 @@ const readGameRequest = async (req: AuthRequest, res: Response, next: NextFuncti
   if (isCreator === 'true') {
     try {
       const gameRequest: IGameRequestModel | null = await GameRequest.findById(gameId)
-        .populate([{path: 'creator', select: 'username name -_id verified' },
-          {path: 'master', select: 'username name contactData rate -_id' },
+        .populate([{path: 'creator', select: 'username name -_id verified avatar' },
+          {path: 'master', select: 'username name contactData rate -_id avatar' },
           {path: 'players', select: 'username -_id contactData name verified' }])
         .select('-__v');// get rid of field
       if (!gameRequest) {
@@ -126,8 +124,8 @@ const readGameRequest = async (req: AuthRequest, res: Response, next: NextFuncti
   else {
     try {
       const gameRequest: IGameRequestModel | null = await GameRequest.findById(gameId)
-        .populate([{path: 'creator', select: 'username -_id verified' },
-          {path: 'master', select: 'username name rate -_id' },
+        .populate([{path: 'creator', select: 'username -_id verified avatar' },
+          {path: 'master', select: 'username name rate -_id avatar' },
           {path: 'players', select: 'username -_id verified' }])
         .select('-booked -__v');// get rid of field
       if (!gameRequest) {
@@ -156,8 +154,8 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
     let gameRequests: IGameRequestModel[] = await sortGameRequests(+sort, filters, true)
       .limit(+limit)
       .skip((+page) * +limit)
-      .populate([{path: 'creator', select: 'username -_id' },
-        {path: 'master', select: 'username name rate -_id' },
+      .populate([{path: 'creator', select: 'username -_id avatar' },
+        {path: 'master', select: 'username name rate -_id avatar' },
         {path: 'players', select: 'username -_id' }])
       .select('-booked -__v'); // get rid of field
     let total = await sortGameRequests(+sort, filters, true).count(); //make true for future games only
@@ -170,7 +168,6 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
     return res.status(500).json({ message: 'Server error', err });
   }
 };
-
 
 const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
@@ -223,15 +220,14 @@ const applyGameRequest = async (req: AuthRequest, res: Response, next: NextFunct
   }
 }
 
-
 const applyGameRequestAsMaster = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
   const user: IUser | null | undefined = req.user;
   if (!user) {
     return;
   }
-  if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
+  if (!req.user?.contactData.telegram || !req.user?.showContacts) {
+    return res.status(403).json({ message: 'You need to have telegram nickname in your profile and activate contacts visibility' });
   }
 
   try {
@@ -263,7 +259,6 @@ const applyGameRequestAsMaster = async (req: AuthRequest, res: Response, next: N
     return res.status(500).json({ message: 'Server error', err });
   }
 }
-
 
 const removePlayerFromGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
@@ -309,4 +304,35 @@ const removePlayerFromGameRequest = async (req: AuthRequest, res: Response, next
   }
 }
 
-export default { createGameRequest, readGameRequest, readAll, updateGameRequest, applyGameRequest, removePlayerFromGameRequest, applyGameRequestAsMaster };
+const removeMasterFromGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { gameId } = req.params;
+  const user: IUserModel | null | undefined = req.user;
+  if (!user) {
+    return;
+  }
+
+  try {
+    const game: IGameRequestModel | null = await GameRequest.findById(gameId)
+      .populate([{path: 'creator', select: '_id username' }])
+      .select('-__v');
+
+    if (!game) {
+      return res.status(404).json({ message: 'not found' });
+    }
+    if (!game?.creator._id.equals(user?._id)) {
+      return res.status(401).json({ message: 'You have no permissions' });
+    }
+    if (!game?.master) {
+      return res.status(403).json({ message: 'There is no master' });
+    }
+
+    game.master = undefined;
+    await game.save();
+
+    return res.status(200).json({message: 'success'});
+  } catch (err) {
+    return res.status(500).json({ message: 'Server error', err });
+  }
+}
+
+export default { createGameRequest, readGameRequest, readAll, updateGameRequest, applyGameRequest, removePlayerFromGameRequest, removeMasterFromGameRequest, applyGameRequestAsMaster };

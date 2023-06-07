@@ -54,14 +54,14 @@ async function combineGamesAndRequests(sort: number, page: number, limit: number
 
   const games: IGameModel[] = await sortGames(+sort, filters)
     .limit(end)
-    .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
+    .populate([{path: 'master', select: 'username name rate -_id avatar' }, {path: 'players', select: 'username -_id' }])
     .select('-__v'); // get rid of field
   let totalGames = await sortGames(+sort, filters).count();
 
   const gameRequests: IGameRequestModel[] = await sortGameRequests(+sort, filters, onlyFutureGames)
     .limit(end)
-    .populate([{path: 'creator', select: 'username -_id' },
-      {path: 'master', select: 'username name rate -_id' },
+    .populate([{path: 'creator', select: 'username -_id avatar' },
+      {path: 'master', select: 'username name rate -_id avatar' },
       {path: 'players', select: 'username -_id' }])
     .select('-booked -__v'); // get rid of field
   let totalRequests = await sortGameRequests(+sort, filters, onlyFutureGames).count();

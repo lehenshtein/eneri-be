@@ -4,7 +4,6 @@ import User, { IUser, IUserModel } from '../user/user.models';
 import { AuthRequest } from '../../middleware/Authentication';
 import Game, { IGameModel } from './game.models';
 import { sortEnum } from '../../models/gameSort.enum';
-import { IGameFilters } from '../../models/gameFilters.interface';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 import {combineGamesAndRequests, sortGames} from './game.lib';
 
@@ -121,7 +120,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
   if (isMaster === 'true') {
     try {
       const game: IGameModel | null = await Game.findById(gameId)
-        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id contactData name verified' }])// form ref author we get author obj and can get his name
+        .populate([{path: 'master', select: 'username name rate -_id avatar' }, {path: 'players', select: 'username -_id contactData name verified' }])// form ref author we get author obj and can get his name
         .select('-__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
