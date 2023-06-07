@@ -49,7 +49,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
 
 
 async function combineGamesAndRequests(sort: number, page: number, limit: number, filters: IGameFilters, onlyFutureGames: boolean = false) {
-  const start = sort * limit;
+  const start = page * limit;
   const end = start + limit;
 
   const games: IGameModel[] = await sortGames(+sort, filters)
@@ -84,7 +84,9 @@ async function combineGamesAndRequests(sort: number, page: number, limit: number
         if (nextGame.suspendedDateTime && nextRequest.suspendedDateTime && nextGame.suspendedDateTime > nextRequest.suspendedDateTime) {
           addGame = true;
         }
-      } else if (nextGame.startDateTime < nextRequest.startDateTime) {
+      } else if (!sort && nextGame.startDateTime < nextRequest.startDateTime) {
+        addGame = true;
+      } else if (sort && nextGame.createdAt > nextRequest.createdAt) {
         addGame = true;
       }
     }
