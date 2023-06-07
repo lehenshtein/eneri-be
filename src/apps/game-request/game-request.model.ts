@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 import { IUserModel } from '../user/user.models';
 import { IGameSystem } from '../../models/GameSystem.interface';
 import { ICity } from '../../models/City.interface';
-import { ITimestamp } from '../../models/timestamp.interface';
 
 export interface IGameRequest {
   master: Partial<IUserModel> | undefined;
@@ -24,7 +23,7 @@ export interface IGameRequest {
   bookedAmount: number;
 }
 
-export interface IGameRequestModel extends IGameRequest, ITimestamp, Document {}
+export interface IGameRequestModel extends IGameRequest, Document {}
 
 const GameRequestSchema: Schema = new Schema({
   master: { type: Schema.Types.ObjectId, required: false, ref: 'User' },
