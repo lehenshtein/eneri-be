@@ -1,11 +1,18 @@
 import TelegramBot, { Message } from 'node-telegram-bot-api';
 import { config } from '../../config/config';
 import firstStart from './first-start/first-start';
-const bot = new TelegramBot(config.telegram.token, {polling: true});
+import { emojis } from '../../helpers/emoji';
 
 export function StartBot() {
+  const bot = new TelegramBot(config.telegram.token, {polling: true});
   bot.onText(/\/start/, (msg: Message, match: RegExpExecArray | null) => {
     firstStart.saveUserChat(msg.chat, bot, msg.chat.id);
+    bot.sendMessage(msg.chat.id, 'Це старт', {
+      reply_markup: {
+        keyboard: [[{text: `/start ${emojis.smiley}`}, {text: `otherbtn ${emojis.expressionless}`}],[{text: `third ${emojis.smirking}`}]],
+        input_field_placeholder: 'Оберіть щось з меню'
+      }
+    });
   })
 
   bot.on('message', (msg: Message) => {
@@ -20,7 +27,7 @@ export function StartBot() {
       `)
     }
     // console.log(msg);
-    bot.sendMessage(chatId, "Change this method")
+    bot.sendMessage(chatId, `You send ${msg.text}`)
   })
 }
 

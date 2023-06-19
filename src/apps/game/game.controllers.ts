@@ -4,8 +4,8 @@ import User, { IUser, IUserModel } from '../user/user.models';
 import { AuthRequest } from '../../middleware/Authentication';
 import Game, { IGameModel } from './game.models';
 import { sortEnum } from '../../models/gameSort.enum';
-import { IGameFilters } from '../../models/gameFilters.interface';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
+import {combineGamesAndRequests, sortGames} from './game.lib';
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -19,7 +19,7 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     return res.status(403).json({ message: 'You have no Master permissions' });
   }
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You don\'t have telegram-bot nickname in your profile' });
+    return res.status(403).json({ message: 'You don\'t have telegram nickname in your profile' });
   }
 
   const game = new Game({
@@ -120,7 +120,7 @@ const readGame = async (req: AuthRequest, res: Response, next: NextFunction) => 
   if (isMaster === 'true') {
     try {
       const game: IGameModel | null = await Game.findById(gameId)
-        .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id contactData name verified' }])// form ref author we get author obj and can get his name
+        .populate([{path: 'master', select: 'username name rate -_id avatar' }, {path: 'players', select: 'username -_id contactData name verified' }])// form ref author we get author obj and can get his name
         .select('-__v');// get rid of field
       if (!game) {
         return res.status(404).json({ message: 'not found' });
@@ -185,7 +185,7 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
     return;
   }
   if (!req.user?.contactData.telegram) {
-    return res.status(403).json({ message: 'You need to have telegram-bot nickname in your profile' });
+    return res.status(403).json({ message: 'You need to have telegram nickname in your profile' });
   }
 
   try {
@@ -288,12 +288,7 @@ const getGamesForMaster = async (req: AuthRequest, res: Response, next: NextFunc
   }
 
   try {
-    const games: IGameModel[] = await sortGames(+sort, filters)
-      .limit(+limit)
-      .skip((+page) * +limit)
-      .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
-      .select('-__v'); // get rid of field
-    let total = await sortGames(+sort, filters).count();
+    const { games, total } = await combineGamesAndRequests(+sort, +page, +limit, filters);
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
@@ -320,12 +315,7 @@ const getGamesForPlayer = async (req: AuthRequest, res: Response, next: NextFunc
   }
 
   try {
-    const games: IGameModel[] = await sortGames(+sort, filters)
-      .limit(+limit)
-      .skip((+page) * +limit)
-      .populate([{path: 'master', select: 'username name rate -_id' }, {path: 'players', select: 'username -_id' }])
-      .select('-booked -__v'); // get rid of field
-    let total = await sortGames(+sort, filters).count();
+    const { games, total } = await combineGamesAndRequests(+sort, +page, +limit, filters);
 
     res.header('X-Page', page.toString());
     res.header('X-Limit', limit.toString());
@@ -336,49 +326,6 @@ const getGamesForPlayer = async (req: AuthRequest, res: Response, next: NextFunc
     return res.status(500).json({ message: 'Server error', err });
   }
 };
-
-function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolean = false) {
-  let dateFilter = {};
-  let searchField = {};
-  let isShowSuspended = {};
-  let gameSystemId = {};
-  let cityCode = {};
-  let master = {};
-  let player = {};
-  if (filters.search) {
-    searchField = { $text: { $search: filters.search } };
-  }
-  if (!filters.isShowSuspended) {
-    isShowSuspended = {isSuspended: false}
-  }
-  if ((filters.gameSystemId && !isNaN(filters.gameSystemId)) || filters.gameSystemId === 0) {
-    gameSystemId = {gameSystemId: filters.gameSystemId}
-  }
-  if ((filters.cityCode && !isNaN(filters.cityCode)) || filters.cityCode === 0) {
-    cityCode = {cityCode: filters.cityCode}
-  }
-  if (filters.master) {
-    master = { master: filters.master }
-  }
-  if (filters.player) {
-    player = {players: filters.player}
-  }
-
-
-  const lastDaysToTakeGames = 90;
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
-  if (onlyFutureGames) {
-    dateFilter = { startDateTime: { $gt: d }}
-  }
-  const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
-  // const query = { createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
-  // to show only future game, uncomment this and comment 2 upper rows
-  return Game.find(query)
-    .sort('isSuspended')
-    .sort('-suspendedDateTime')
-    .sort(sort === sortEnum.new ? '-createdAt' : 'startDateTime');
-}
 
 const deleteGame = (req: AuthRequest, res: Response, next: NextFunction) => {
   const { gameId } = req.params;
