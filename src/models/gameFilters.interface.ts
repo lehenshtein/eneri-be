@@ -8,4 +8,5 @@ export interface IGameFilters {
   master?: ObjectId;
   creator?: ObjectId;
   player?: ObjectId;
+  linkOnly?: boolean;
 }

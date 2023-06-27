@@ -156,11 +156,28 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const page = req.query.page || 0;
   const limit = req.query.limit || 10;
   const sort = req.query.sort || sortEnum.closestDate;
-  const filters = {
+  const masterName = req.query.master || undefined;
+  const accessCode = req.query.accessCode || '';
+  let filters = {
     search: req.query.search as string || '',
     isShowSuspended: (req.query.isShowSuspended as string)?.toLowerCase() === 'true',
     gameSystemId: req.query.gameSystemId ? +req.query.gameSystemId : null,
-    cityCode: req.query.cityCode ? +req.query.cityCode : null
+    cityCode: req.query.cityCode ? +req.query.cityCode : null,
+    master: undefined,
+    linkOnly: false,
+  }
+  if (masterName) {
+    const master = await User.findOne(
+      {username: masterName, gameRole: 'both'},
+      {'_id': 1, 'fullAccessCode': 1}
+      );
+    if (!master) {
+      return res.status(404).json({ message: 'Master not found' });
+    }
+    filters.master = master._id;
+    if (accessCode === master.fullAccessCode) {
+      filters.linkOnly = true;
+    }
   }
 
   try {

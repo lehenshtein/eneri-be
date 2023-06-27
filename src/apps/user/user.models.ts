@@ -25,6 +25,7 @@ export interface IUser {
   verified: boolean,
   verificationKey: string,
   verificationDate: Date,
+  fullAccessCode: string,
 }
 interface IContactData {
   city: { name: string, code: number } | undefined,
@@ -85,6 +86,7 @@ const UserSchema: Schema = new Schema(
     verified: { type: Boolean, required: true, default: false },
     verificationKey: { type: String, required: true },
     verificationDate: { type: Date, required: true, default: new Date() },
+    fullAccessCode: { type: String, required: false, default: '' },
   },
   {
     versionKey: false,

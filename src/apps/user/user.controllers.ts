@@ -49,6 +49,7 @@ const editUser = async(req: AuthRequest, res: Response, next: NextFunction) => {
   }
   if (req.user.gameRole === 'player') {
     req.body.showContacts = false;
+    req.body.fullAccessCode = '';
   }
 
   if (req.body.avatar || req.files?.length){

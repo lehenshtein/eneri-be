@@ -76,6 +76,7 @@ export const Schema = {
     about: Joi.string().empty('').max(600),
     showContacts: Joi.boolean(),
     contactData: Joi.object(),
-    avatar: Joi.string().empty(null)
+    avatar: Joi.string().empty(null),
+    fullAccessCode: Joi.string().empty('').max(30),
   })
 };
