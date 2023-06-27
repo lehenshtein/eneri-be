@@ -16,6 +16,8 @@ export const gameRequestResponseDto = (game: IGameRequestModel, username: string
     players: game.price,
     maxPlayers: game.maxPlayers,
     booked: game.booked,
-    bookedAmount: game.booked.length
+    bookedAmount: game.booked.length,
+    linkOnly: game.linkOnly,
+    organizedPlay: game.organizedPlay
   }
 }

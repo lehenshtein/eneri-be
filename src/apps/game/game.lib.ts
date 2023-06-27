@@ -84,11 +84,12 @@ async function combineGamesAndRequests(sort: number, page: number, limit: number
         if (nextGame.suspendedDateTime && nextRequest.suspendedDateTime && nextGame.suspendedDateTime > nextRequest.suspendedDateTime) {
           addGame = true;
         }
-      } else if (!sort && nextGame.startDateTime < nextRequest.startDateTime) {
-        addGame = true;
+      } else if (!sort &&
+        (nextGame.startDateTime && nextRequest.startDateTime) &&
+        (nextGame.startDateTime < nextRequest.startDateTime)) {
+          addGame = true;
       } else if (sort && nextGame.createdAt > nextRequest.createdAt) {
         addGame = true;
-
       }
     }
 

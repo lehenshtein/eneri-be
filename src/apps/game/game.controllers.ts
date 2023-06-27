@@ -9,7 +9,7 @@ import {combineGamesAndRequests, sortGames} from './game.lib';
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, byInvite, startDateTime, maxPlayers, booked } = req.body;
+  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, startDateTime, maxPlayers, booked, linkOnly, organizedPlay } = req.body;
   const author: IUser = req.user?._id;
   if (!author) {
     return;
@@ -32,11 +32,12 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     tags,
     cityCode,
     price,
-    byInvite,
     startDateTime,
     maxPlayers,
     booked,
-    bookedAmount: booked.length
+    bookedAmount: booked.length,
+    linkOnly,
+    organizedPlay
   });
 
   if (game.imgUrl || req.files?.length) {
@@ -60,11 +61,12 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     tags,
     cityCode,
     price,
-    byInvite,
     startDateTime,
     maxPlayers,
     booked,
-    bookedAmount: booked.length
+    bookedAmount: booked.length,
+    linkOnly,
+    organizedPlay
   }
 
   return game.save()
@@ -97,7 +99,7 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
         }
 
         // reopen games if start date was updated
-        if (game.startDateTime >= new Date()) {
+        if (game.startDateTime && game.startDateTime >= new Date()) {
           game.isSuspended = false;
           game.suspendedDateTime = undefined;
         }
