@@ -44,7 +44,6 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player, ...linkOnly };
   // const query = { createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
   // to show only future game, uncomment this and comment 2 upper rows
-  console.log(query);
   return Game.find(query)
     .sort('isSuspended')
     .sort('-suspendedDateTime')

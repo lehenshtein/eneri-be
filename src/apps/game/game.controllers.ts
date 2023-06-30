@@ -157,7 +157,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const limit = req.query.limit || 10;
   const sort = req.query.sort || sortEnum.closestDate;
   const masterName = req.query.master || undefined;
-  const accessCode = req.query.accessCode || '';
+  const fullAccessCode = req.query.fullAccessCode || '';
   let filters = {
     search: req.query.search as string || '',
     isShowSuspended: (req.query.isShowSuspended as string)?.toLowerCase() === 'true',
@@ -175,7 +175,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
       return res.status(404).json({ message: 'Master not found' });
     }
     filters.master = master._id;
-    if (accessCode === master.fullAccessCode) {
+    if (fullAccessCode === master.fullAccessCode) {
       filters.linkOnly = true;
     }
   }

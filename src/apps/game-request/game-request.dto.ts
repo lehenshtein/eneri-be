@@ -1,7 +1,6 @@
 import { IGameRequestModel } from './game-request.model';
 
 export const gameRequestResponseDto = (game: IGameRequestModel, username: string) => {
-  console.log(game);
   return {
     _id: game._id,
     creator: {username},
