@@ -27,7 +27,7 @@ const GameValidator = Joi.object({
   imgUrl: Joi.string().empty(null).max(240),
   price: Joi.number().min(0),
   cityCode: Joi.number().required(),
-  byInvite: Joi.boolean().default(false),
+  linkOnly: Joi.boolean().default(false),
   maxPlayers: Joi.number().min(1).default(1),
   startDateTime: Joi.date(),
   booked: Joi.array().items(Joi.string()),
@@ -42,6 +42,7 @@ const GameRequestValidator = Joi.object({
   imgUrl: Joi.string().empty(null).max(240),
   price: Joi.number().min(0),
   cityCode: Joi.number().required(),
+  linkOnly: Joi.boolean().default(false),
   maxPlayers: Joi.number().min(1).default(1),
   startDateTime: Joi.date(),
   booked: Joi.array().items(Joi.string()),
@@ -75,6 +76,7 @@ export const Schema = {
     about: Joi.string().empty('').max(600),
     showContacts: Joi.boolean(),
     contactData: Joi.object(),
-    avatar: Joi.string().empty(null)
+    avatar: Joi.string().empty(null),
+    fullAccessCode: Joi.string().empty('').max(30),
   })
 };

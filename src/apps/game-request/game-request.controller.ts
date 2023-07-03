@@ -10,7 +10,7 @@ import { sortGameRequests } from "./game-request.lib";
 
 
 const createGameRequest = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, startDateTime, maxPlayers, booked } = req.body;
+  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, startDateTime, maxPlayers, booked, linkOnly, organizedPlay } = req.body;
   const author: IUser = req.user?._id;
   const players: IUser[] = [author];
   if (!author) {
@@ -35,7 +35,9 @@ const createGameRequest = async (req: AuthRequest, res: Response, next: NextFunc
     players,
     maxPlayers,
     booked,
-    bookedAmount: booked.length
+    bookedAmount: booked.length,
+    linkOnly,
+    organizedPlay
   });
 
   if (gameRequest.imgUrl || req.files?.length) {
@@ -80,7 +82,7 @@ const updateGameRequest = async (req: AuthRequest, res: Response, next: NextFunc
         }
 
         // reopen games if start date was updated
-        if (gameRequest.startDateTime >= new Date()) {
+        if (gameRequest.startDateTime && gameRequest.startDateTime >= new Date()) {
           gameRequest.isSuspended = false;
           gameRequest.suspendedDateTime = undefined;
         }

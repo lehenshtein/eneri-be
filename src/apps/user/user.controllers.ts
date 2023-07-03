@@ -1,7 +1,6 @@
 import { AuthRequest } from '../../middleware/Authentication';
 import { NextFunction, Request, Response } from 'express';
-import User, { IUser, IUserAsMaster, IUserAsPlayer, IUserModel } from './user.models';
-import Crypto from 'crypto';
+import User, { IUserAsMaster, IUserAsPlayer, IUserModel } from './user.models';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 import { userAsMasterDto, userAsPlayerDto } from './user.dto';
 
@@ -49,6 +48,7 @@ const editUser = async(req: AuthRequest, res: Response, next: NextFunction) => {
   }
   if (req.user.gameRole === 'player') {
     req.body.showContacts = false;
+    req.body.fullAccessCode = '';
   }
 
   if (req.body.avatar || req.files?.length){
