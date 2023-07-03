@@ -1,27 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IUserModel } from '../user/user.models';
-import { IGameSystem } from '../../models/GameSystem.interface';
-import { ICity } from '../../models/City.interface';
 import { ITimestamp } from '../../models/timestamp.interface';
+import { ICommonGame } from '../../models/commonGame.interface';
 
-export interface IGameRequest {
+export interface IGameRequest extends ICommonGame {
   master: Partial<IUserModel> | undefined;
   creator: Partial<IUserModel>;
-  gameSystemId: IGameSystem['_id'];
-  title: string;
-  description: string;
-  organizedPlay: boolean;
-  tags: string[];
-  imgUrl: string;
-  price: number;
-  cityCode: ICity['code'];
-  isSuspended: boolean;
-  suspendedDateTime: Date | undefined;
-  startDateTime: Date;
-  players: Partial<IUserModel>[];
-  maxPlayers: number;
-  booked: string[];
-  bookedAmount: number;
 }
 
 export interface IGameRequestModel extends IGameRequest, ITimestamp, Document {}
@@ -37,9 +21,10 @@ const GameRequestSchema: Schema = new Schema({
   imgUrl: { type: String, required: false },
   price: { type: Number, required: true },
   cityCode: { type: Number, required: true },
+  linkOnly: { type: Boolean, default: false },
   isSuspended: { type: Boolean, default: false },
   suspendedDateTime: { type: Date, required: false },
-  startDateTime: { type: Date, required: true,  default: new Date().getTime() },
+  startDateTime: { type: Date, required: false },
   players: { type: [Schema.Types.ObjectId], required: true, default: [], ref: 'User' },
   maxPlayers: { type: Number, required: true, default: 1 },
   booked: { type: [String], required: false, default: [] },

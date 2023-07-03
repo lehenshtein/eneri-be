@@ -9,7 +9,7 @@ import {combineGamesAndRequests, sortGames} from './game.lib';
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
-  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, byInvite, startDateTime, maxPlayers, booked } = req.body;
+  const { gameSystemId, title, description, tags, imgUrl, price, cityCode, startDateTime, maxPlayers, booked, linkOnly, organizedPlay } = req.body;
   const author: IUser = req.user?._id;
   if (!author) {
     return;
@@ -32,11 +32,12 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     tags,
     cityCode,
     price,
-    byInvite,
     startDateTime,
     maxPlayers,
     booked,
-    bookedAmount: booked.length
+    bookedAmount: booked.length,
+    linkOnly,
+    organizedPlay
   });
 
   if (game.imgUrl || req.files?.length) {
@@ -60,11 +61,12 @@ const createGame = async (req: AuthRequest, res: Response, next: NextFunction) =
     tags,
     cityCode,
     price,
-    byInvite,
     startDateTime,
     maxPlayers,
     booked,
-    bookedAmount: booked.length
+    bookedAmount: booked.length,
+    linkOnly,
+    organizedPlay
   }
 
   return game.save()
@@ -97,7 +99,7 @@ const updateGame = async (req: AuthRequest, res: Response, next: NextFunction) =
         }
 
         // reopen games if start date was updated
-        if (game.startDateTime >= new Date()) {
+        if (game.startDateTime && game.startDateTime >= new Date()) {
           game.isSuspended = false;
           game.suspendedDateTime = undefined;
         }
@@ -154,11 +156,28 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const page = req.query.page || 0;
   const limit = req.query.limit || 10;
   const sort = req.query.sort || sortEnum.closestDate;
-  const filters = {
+  const masterName = req.query.master || undefined;
+  const fullAccessCode = req.query.fullAccessCode || '';
+  let filters = {
     search: req.query.search as string || '',
     isShowSuspended: (req.query.isShowSuspended as string)?.toLowerCase() === 'true',
     gameSystemId: req.query.gameSystemId ? +req.query.gameSystemId : null,
-    cityCode: req.query.cityCode ? +req.query.cityCode : null
+    cityCode: req.query.cityCode ? +req.query.cityCode : null,
+    master: undefined,
+    linkOnly: false,
+  }
+  if (masterName) {
+    const master = await User.findOne(
+      {username: masterName, gameRole: 'both'},
+      {'_id': 1, 'fullAccessCode': 1}
+      );
+    if (!master) {
+      return res.status(404).json({ message: 'Master not found' });
+    }
+    filters.master = master._id;
+    if (fullAccessCode === master.fullAccessCode) {
+      filters.linkOnly = true;
+    }
   }
 
   try {

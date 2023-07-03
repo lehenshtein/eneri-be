@@ -1,27 +1,10 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import { IUserModel } from '../user/user.models';
-import { IGameSystem } from '../../models/GameSystem.interface';
-import { ICity } from '../../models/City.interface';
 import { ITimestamp } from '../../models/timestamp.interface';
+import { ICommonGame } from '../../models/commonGame.interface';
 
-export interface IGame {
+export interface IGame extends ICommonGame{
   master: Partial<IUserModel>;
-  gameSystemId: IGameSystem['_id'];
-  title: string;
-  description: string;
-  organizedPlay: boolean;
-  imgUrl: string;
-  tags: string[];
-  cityCode: ICity['code'];
-  price: number;
-  byInvite: boolean;
-  isSuspended: boolean;
-  suspendedDateTime: Date | undefined;
-  startDateTime: Date;
-  players: Partial<IUserModel>[];
-  maxPlayers: number;
-  booked: string[];
-  bookedAmount: number;
 }
 
 export interface IGameModel extends IGame, ITimestamp, Document {}
@@ -36,7 +19,7 @@ const GameSchema: Schema = new Schema({
   imgUrl: { type: String, required: false },
   price: { type: Number, required: true },
   cityCode: { type: Number, required: true },
-  byInvite: { type: Boolean, default: false },
+  linkOnly: { type: Boolean, default: false },
   isSuspended: { type: Boolean, default: false },
   suspendedDateTime: { type: Date, required: false },
   startDateTime: { type: Date, required: false },

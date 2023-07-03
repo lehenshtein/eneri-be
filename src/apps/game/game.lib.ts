@@ -12,6 +12,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   let cityCode = {};
   let master = {};
   let player = {};
+  let linkOnly = {};
   if (filters.search) {
     searchField = { $text: { $search: filters.search } };
   }
@@ -30,7 +31,9 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   if (filters.player) {
     player = {players: filters.player}
   }
-
+  if (filters.linkOnly === false) {
+    linkOnly = {linkOnly: {"$ne": true}};
+  }
 
   const lastDaysToTakeGames = 90;
   const d = new Date();
@@ -38,7 +41,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
   if (onlyFutureGames) {
     dateFilter = { startDateTime: { $gt: d }}
   }
-  const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
+  const query = { ...dateFilter, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player, ...linkOnly };
   // const query = { createdAt: { $gt: d }, ...cityCode, ...gameSystemId, ...isShowSuspended, ...searchField, ...master, ...player };
   // to show only future game, uncomment this and comment 2 upper rows
   return Game.find(query)
@@ -84,11 +87,12 @@ async function combineGamesAndRequests(sort: number, page: number, limit: number
         if (nextGame.suspendedDateTime && nextRequest.suspendedDateTime && nextGame.suspendedDateTime > nextRequest.suspendedDateTime) {
           addGame = true;
         }
-      } else if (!sort && nextGame.startDateTime < nextRequest.startDateTime) {
-        addGame = true;
+      } else if (!sort &&
+        (nextGame.startDateTime && nextRequest.startDateTime) &&
+        (nextGame.startDateTime < nextRequest.startDateTime)) {
+          addGame = true;
       } else if (sort && nextGame.createdAt > nextRequest.createdAt) {
         addGame = true;
-
       }
     }
 
