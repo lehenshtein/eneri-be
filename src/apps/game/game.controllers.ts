@@ -175,7 +175,7 @@ const readAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
       return res.status(404).json({ message: 'Master not found' });
     }
     filters.master = master._id;
-    if (fullAccessCode === master.fullAccessCode) {
+    if (fullAccessCode && fullAccessCode === master.fullAccessCode) {
       filters.linkOnly = true;
     }
   }
