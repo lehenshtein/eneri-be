@@ -75,3 +75,16 @@ export async function sendVerificationEmail (receiver: string, verificationKey: 
     Logger.err(err);
   }
 }
+
+export async function sendEmail (email: string, subject: string, text: string) {
+  const emailData = {
+    subject,
+    text
+  };
+  const sender = new EmailSender(email, emailData);
+  try {
+    await sender.sendMail();
+  } catch (err) {
+    Logger.err(err);
+  }
+}
