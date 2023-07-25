@@ -6,6 +6,8 @@ import Game, { IGameModel } from './game.models';
 import { sortEnum } from '../../models/gameSort.enum';
 import { isImageUploaded, uploadFile, fileType } from "../../library/ImageUpload";
 import {combineGamesAndRequests, sortGames} from './game.lib';
+import { getNewApplyMessage, sendNotification } from '../../library/NotificationSender';
+import Logger from '../../library/logger';
 
 
 const createGame = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -209,7 +211,7 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
 
   try {
     const game: IGameModel | null = await Game.findById(gameId)
-      .populate('master', '-_id name username')
+      .populate('master', '-_id name username email verified')
       .select('-__v');
     if (!game) {
       return res.status(404).json({ message: 'not found' });
@@ -241,6 +243,14 @@ const applyGame = async (req: AuthRequest, res: Response, next: NextFunction) =>
     }
     game.players.push(player);
     await game.save();
+    console.log(game.master);
+    if (game.master && game.master.verified && game.master.email) {
+      try {
+        await sendNotification(game.master as IUser, 'ЕНЕРІ | новий запис на гру', getNewApplyMessage(game, req.user.username))
+      } catch (err) {
+        Logger.err(err);
+      }
+    }
 
     return res.status(200).json({message: 'success'});
   } catch (err) {
