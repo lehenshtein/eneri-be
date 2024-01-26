@@ -35,7 +35,7 @@ function sortGames (sort: number, filters: IGameFilters, onlyFutureGames: boolea
     linkOnly = {linkOnly: {"$ne": true}};
   }
 
-  const lastDaysToTakeGames = 90;
+  const lastDaysToTakeGames = 365;
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - lastDaysToTakeGames);
   if (onlyFutureGames) {
